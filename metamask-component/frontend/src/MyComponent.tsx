@@ -1,13 +1,33 @@
 import {
-  Streamlit,
+  // Streamlit,
   StreamlitComponentBase,
   withStreamlitConnection,
 } from "streamlit-component-lib"
 import React, { ReactNode } from "react"
+import * as ethers from "ethers"
 
 interface State {
   numClicks: number
   isFocused: boolean
+}
+
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
+
+async function getAccount() {
+  var provider;
+  var signer;
+  provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+  // Prompt user for account connections
+  await provider.send("eth_requestAccounts", []);
+  // console.log(await provider.send("eth_requestAccounts", []))
+  signer = provider.getSigner();
+  console.log("Account:", await signer.getAddress());
+  await signer.getAddress();
+  // accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 }
 
 /**
@@ -20,7 +40,6 @@ class MyComponent extends StreamlitComponentBase<State> {
   public render = (): ReactNode => {
     // Arguments that are passed to the plugin in Python are accessible
     // via `this.props.args`. Here, we access the "name" arg.
-    const name = this.props.args["name"]
 
     // Streamlit sends us a theme object via props that we can use to ensure
     // that our component has visuals that match the active theme in a
@@ -46,7 +65,6 @@ class MyComponent extends StreamlitComponentBase<State> {
     // be available to the Python program.
     return (
       <span>
-        Hello, {name}! &nbsp;
         <button
           style={style}
           onClick={this.onClicked}
@@ -54,7 +72,7 @@ class MyComponent extends StreamlitComponentBase<State> {
           onFocus={this._onFocus}
           onBlur={this._onBlur}
         >
-          Click Me!
+          Connect Wallet
         </button>
       </span>
     )
@@ -62,12 +80,9 @@ class MyComponent extends StreamlitComponentBase<State> {
 
   /** Click handler for our "Click Me!" button. */
   private onClicked = (): void => {
+    getAccount()
     // Increment state.numClicks, and pass the new value back to
     // Streamlit via `Streamlit.setComponentValue`.
-    this.setState(
-      prevState => ({ numClicks: prevState.numClicks + 1 }),
-      () => Streamlit.setComponentValue(this.state.numClicks)
-    )
   }
 
   /** Focus handler for our "Click Me!" button. */
