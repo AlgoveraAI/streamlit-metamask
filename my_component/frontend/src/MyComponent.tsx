@@ -4,10 +4,31 @@ import {
   withStreamlitConnection,
 } from "streamlit-component-lib"
 import React, { ReactNode } from "react"
+import * as ethers from "ethers"
 
 interface State {
   numClicks: number
   isFocused: boolean
+}
+
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
+
+async function getAccount() {
+  var provider;
+  var signer;
+  provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+  // Prompt user for account connections
+  await provider.send("eth_requestAccounts", []);
+  // console.log(await provider.send("eth_requestAccounts", []))
+  signer = provider.getSigner();
+  console.log("Account:", await signer.getAddress());
+  const address = await signer.getAddress();
+  return address
+  // accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 }
 
 /**
@@ -63,11 +84,12 @@ class MyComponent extends StreamlitComponentBase<State> {
 
   /** Click handler for our "Click Me!" button. */
   private onClicked = (): void => {
+    const address = getAccount()
     // Increment state.numClicks, and pass the new value back to
     // Streamlit via `Streamlit.setComponentValue`.
     this.setState(
       prevState => ({ numClicks: prevState.numClicks + 1 }),
-      () => Streamlit.setComponentValue(this.state.numClicks)
+      () => Streamlit.setComponentValue(address)
     )
   }
 
