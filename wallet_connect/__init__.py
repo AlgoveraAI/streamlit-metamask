@@ -1,10 +1,11 @@
 import streamlit.components.v1 as components
 import streamlit as st
+import os
 
-_wallet_connect = components.declare_component(
-    "wallet_connect",
-    url="http://localhost:3001"
-)
+
+parent_dir = os.path.dirname(os.path.abspath(__file__))
+build_dir = os.path.join(parent_dir, "frontend/build")
+_wallet_connect = components.declare_component("wallet_connect", path=build_dir)
 
 
 def wallet_connect(label, key=None):
