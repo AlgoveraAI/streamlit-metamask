@@ -3,9 +3,9 @@ import setuptools
 setuptools.setup(
     name="streamlit-wallet-connect",
     version="0.0.1",
-    author="",
-    author_email="",
-    description="",
+    author="AlgoveraAI",
+    author_email="hello@algovera.ai",
+    description="A button for connecting your MetaMask wallet to a Streamlit app.",
     long_description="",
     long_description_content_type="text/plain",
     url="",

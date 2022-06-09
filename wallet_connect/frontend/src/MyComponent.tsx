@@ -23,12 +23,9 @@ async function getAccount() {
   provider = new ethers.providers.Web3Provider(window.ethereum, "any");
   // Prompt user for account connections
   await provider.send("eth_requestAccounts", []);
-  // console.log(await provider.send("eth_requestAccounts", []))
   signer = provider.getSigner();
-  console.log("Account:", await signer.getAddress());
   const address = await signer.getAddress();
   return address
-  // accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 }
 
 /**
@@ -36,7 +33,7 @@ async function getAccount() {
  * automatically when your component should be re-rendered.
  */
 class WalletConnect extends StreamlitComponentBase<State> {
-  public state = { walletAddress: "0x", isFocused: false }
+  public state = { walletAddress: "not", isFocused: false }
 
   public render = (): ReactNode => {
     // Arguments that are passed to the plugin in Python are accessible
@@ -82,7 +79,6 @@ class WalletConnect extends StreamlitComponentBase<State> {
   /** Click handler for our "Click Me!" button. */
   private onClicked = async (): Promise<void> => {
     const address = await getAccount()
-    console.log("wallet is ", address)
     this.setState(
       () => ({ walletAddress: address }),
       () => Streamlit.setComponentValue(this.state.walletAddress)
