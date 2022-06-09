@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: streamlit-wallet-connect
+Version: 0.0.1
+Summary: A button for connecting your MetaMask wallet to a Streamlit app.
+Home-page: 
+Author: AlgoveraAI
+Author-email: hello@algovera.ai
+License: UNKNOWN
+Platform: UNKNOWN
+Requires-Python: >=3.6
+Description-Content-Type: text/plain
+License-File: LICENSE
+
+UNKNOWN
+
