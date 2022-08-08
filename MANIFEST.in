@@ -1,0 +1,1 @@
+recursive-include wallet_connect/frontend/build *
