@@ -7,7 +7,7 @@ from ocean_lib.ocean.ocean import Ocean
 from ocean_lib.web3_internal.wallet import Wallet
 from ocean_lib.web3_internal.currency import pretty_ether_and_wei, to_wei
 from ocean_lib.web3_internal.constants import ZERO_ADDRESS
-from ocean_lib.agreements.service_types import ServiceType
+from PIL import Image
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,6 +18,9 @@ _wallet_connect = components.declare_component("wallet_connect", path=build_dir)
 
 
 def wallet_connect(label, key=None):
+    """
+    Wallet Connect component.
+    """
     return _wallet_connect(label=label, default="not", key=key)
 
 
@@ -25,8 +28,13 @@ wallet_button = wallet_connect(label="wallet", key="wallet")
 
 st.write(f"Wallet {wallet_button} connected.")
 
+config = Config('./wallet_connect/config.ini')
+ocean = Ocean(config)
 
-def search(term="", did_in="", address="", buy_top_result=False):
+def search(term="", did_in="", address=""):
+    """
+    Search for an asset on the Ocean Marketplace.
+    """
 
     if address:
         wallet = Wallet(ocean.web3, private_key=address, transaction_timeout=20, block_confirmations=0)
@@ -59,7 +67,7 @@ def search(term="", did_in="", address="", buy_top_result=False):
                 continue
             
             if address:
-                data_token = ocean.get_data_token(data_token_address)
+                data_token = ocean.get_datatoken(data_token_address)
                 token_address = data_token.address
                 balances.append(pretty_ether_and_wei(data_token.balanceOf(wallet.address)))
             else:
@@ -106,7 +114,7 @@ def search(term="", did_in="", address="", buy_top_result=False):
             pass
         
         if address:
-            data_token = ocean.get_data_token(asset.data_token_address)
+            data_token = ocean.get_datatoken(asset.datatokens[0]["address"])
             token_address = data_token.address
             balances.append(pretty_ether_and_wei(data_token.balanceOf(wallet.address)))
         else:
@@ -131,24 +139,12 @@ def search(term="", did_in="", address="", buy_top_result=False):
         plt.close()
         
         results.append([dids[-1], datas[-1], balances[-1]])
-        
-    if buy_top_result and address:
-        asset = ocean.assets.resolve(dids[0])
-        data_token = ocean.get_data_token(asset.data_token_address)
-        
-        service_type = asset.as_dictionary()['service'][1]['type']
-        compute_service = asset.get_service(service_type)
-        
-        owner_address = asset.as_dictionary()['publicKey'][0]['owner']
-        
-        logs = ocean.exchange.search_exchange_by_data_token(asset.data_token_address)
-        exchange_id = logs[0].args.exchangeId
-        
-        tx_result = ocean.exchange.buy_at_fixed_rate(to_wei(1), wallet, to_wei(5), exchange_id, asset.data_token_address, owner_address)
-        assert tx_result, "failed buying tokens"
-            
-        balance = pretty_ether_and_wei(data_token.balanceOf(wallet.address))
-    
-        results[0][2] = balance
 
     return results 
+
+
+term = st.text_input("Search for an asset by name", "")
+did = st.text_input("Search for an asset by DID", "")
+address = st.text_input("Insert address private key", "")
+
+st.button("Search", on_click=search(term, did, address))
