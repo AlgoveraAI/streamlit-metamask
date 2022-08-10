@@ -5,3 +5,4 @@
 .devcontainer/
 .ipynb_checkpoints/
 .vscode/
+*.ipynb
