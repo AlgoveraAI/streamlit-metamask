@@ -26,3 +26,6 @@ st.write(f"Wallet {wallet_button} connected.")
 term = st.text_input("Search for an asset by name", "")
 did = st.text_input("Search for an asset by DID", "")
 address = st.text_input("Insert address private key", "")
+
+_ocean_data = components.declare_component("ocean_data", url="http://localhost:3001/")
+_ocean_data(did=did)
