@@ -1,12 +1,12 @@
 import {
-    // Streamlit,
+    Streamlit,
     StreamlitComponentBase,
     withStreamlitConnection,
 } from "streamlit-component-lib"
 import React, { ReactNode } from "react"
   
 interface State {
-    walletAddress: string
+    assetObject: string
     isFocused: boolean
 }
   
@@ -24,7 +24,7 @@ function searchAsset(did: string) {
    * automatically when your component should be re-rendered.
 */
 class DataQuery extends StreamlitComponentBase<State> {
-    public state = { walletAddress: "not", isFocused: false }
+    public state = { assetObject: "not", isFocused: false }
   
     public render = (): ReactNode => {
       // Arguments that are passed to the plugin in Python are accessible
@@ -62,7 +62,6 @@ class DataQuery extends StreamlitComponentBase<State> {
           >
             Search Asset
           </button>
-          {this.props.args["did"]}
         </span>
       )
     }
@@ -70,10 +69,10 @@ class DataQuery extends StreamlitComponentBase<State> {
     /** Click handler for our "Click Me!" button. */
     private onClicked = async (): Promise<void> => {
       const asset = await searchAsset(this.props.args["did"])
-    //   this.setState(
-    //     () => ({ walletAddress: address }),
-    //     () => Streamlit.setComponentValue(this.state.walletAddress)
-    //   )
+      this.setState(
+        () => ({ assetObject: asset }),
+        () => Streamlit.setComponentValue(this.state.assetObject)
+      )
       // Increment state.numClicks, and pass the new value back to
       // Streamlit via `Streamlit.setComponentValue`.
     }
