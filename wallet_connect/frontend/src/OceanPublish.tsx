@@ -132,7 +132,7 @@ async function publish() {
         withMint: false
     }
 
-    const tx = await factory.createNftErc20WithFixedRate(
+    const tx: any = await factory.createNftErc20WithFixedRate(
         publisherAccount.address,
         nftParams,
         erc20Params,
