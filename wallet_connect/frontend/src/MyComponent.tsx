@@ -13,18 +13,18 @@ interface State {
 
 declare global {
   interface Window {
-    ethereum: any;
+    ethereum: any
   }
 }
 
 async function getAccount() {
-  var provider;
-  var signer;
-  provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+  var provider
+  var signer
+  provider = new ethers.providers.Web3Provider(window.ethereum, "any")
   // Prompt user for account connections
-  await provider.send("eth_requestAccounts", []);
-  signer = provider.getSigner();
-  const address = await signer.getAddress();
+  await provider.send("eth_requestAccounts", [])
+  signer = provider.getSigner()
+  const address = await signer.getAddress()
   return address
 }
 
@@ -50,11 +50,14 @@ class WalletConnect extends StreamlitComponentBase<State> {
     if (theme) {
       // Use the theme object to style our button border. Alternatively, the
       // theme style is defined in CSS vars.
-      const borderStyling = `1px solid ${
+      const borderStyling = `0px solid ${
         this.state.isFocused ? theme.primaryColor : "gray"
       }`
       style.border = borderStyling
       style.outline = borderStyling
+      style.backgroundColor = "#FF4B4B"
+      style.color = "white"
+      style.borderRadius = "0.2rem"
     }
 
     // Show a button and some text.
