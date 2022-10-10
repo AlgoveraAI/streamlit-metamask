@@ -12,6 +12,6 @@ def wallet_connect(label, key=None):
     return _wallet_connect(label=label, default="not", key=key)
 
 
-wallet_button = wallet_connect(label="wallet", key="wallet")
+# wallet_button = wallet_connect(label="wallet", key="wallet")
 
-st.write(f"Wallet {wallet_button} connected.")
+# st.write(f"Wallet {wallet_button} connected.")
