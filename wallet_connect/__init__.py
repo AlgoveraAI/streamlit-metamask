@@ -9,11 +9,10 @@ build_dir = os.path.join(parent_dir, "frontend/build")
 _wallet_connect = components.declare_component("wallet_connect", url="http://localhost:3001")
 
 
-def wallet_connect(label, key=None, message="Connect Wallet"):
-    return _wallet_connect(label=label, default="not", key=key, message=message)
+def wallet_connect(label, key=None, message="Connect Wallet", amount="0.01", to=""):
+    return _wallet_connect(label=label, default="not", key=key, message=message, amount=amount, to=to)
 
 
 wallet_button = wallet_connect(label="wallet", key="wallet")
-second_button = wallet_connect(label="send", key="send", message="Send Transaction")
-
-# st.write(f"Wallet {wallet_button} connected.")
+st.write(f"Wallet {wallet_button} connected.")
+second_button = wallet_connect(label="send", key="send", message="Send Transaction", amount="0.01", to="")

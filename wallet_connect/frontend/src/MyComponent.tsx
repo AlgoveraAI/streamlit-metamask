@@ -29,7 +29,7 @@ async function getAccount() {
   return address
 }
 
-async function sendFixedPayment() {
+async function sendFixedPayment(tokenAmount: string, toAddress: string) {
   console.log("Sending fixed payment")
   var ethersProvider = new ethers.providers.Web3Provider(window.ethereum, "any")
   var signer = ethersProvider.getSigner()
@@ -37,18 +37,19 @@ async function sendFixedPayment() {
   const gas_price = ethersProvider.getGasPrice()
   const tx = {
     from: address,
-    to: '0x6A128bff299E4D766C4f1516Ab97e54b3CE03ce9',
-    value: ethers.utils.parseEther("0.01"), // send_token_amount
+    to: toAddress,
+    value: ethers.utils.parseEther(tokenAmount), // send_token_amount
     nonce: ethersProvider.getTransactionCount(address, "latest"),
     gasLimit: ethers.utils.hexlify(100000), // 100000 - gas_limit
     gasPrice: gas_price,
   }
-
+  console.log("Got here")
   signer.sendTransaction(tx).then((transaction) => {
     console.dir(transaction)
     alert("Send finished!")
   })
-  return "sent fixed payment"
+
+  return "Sent Transaction"
 }
 
 /**
@@ -112,7 +113,9 @@ class WalletConnect extends StreamlitComponentBase<State> {
       () => Streamlit.setComponentValue(this.state.walletAddress)
     )
     } else if (this.props.args["key"] === "send") {
-      const tx = await sendFixedPayment()
+      console.log(this.props.args["amount"])
+      console.log(this.props.args["to"])
+      const tx = await sendFixedPayment(String(this.props.args["amount"]), this.props.args["to"])
       this.setState(
         () => ({ transaction: tx }),
         () => Streamlit.setComponentValue(this.state.transaction)
