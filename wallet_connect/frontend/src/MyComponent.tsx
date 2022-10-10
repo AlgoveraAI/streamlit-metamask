@@ -8,6 +8,7 @@ import * as ethers from "ethers"
 
 interface State {
   walletAddress: string
+  transaction: string
   isFocused: boolean
 }
 
@@ -28,12 +29,17 @@ async function getAccount() {
   return address
 }
 
+async function sendFixedPayment() {
+  console.log("Sending fixed payment")
+  return "sent fixed payment"
+}
+
 /**
  * This is a React-based component template. The `render()` function is called
  * automatically when your component should be re-rendered.
  */
 class WalletConnect extends StreamlitComponentBase<State> {
-  public state = { walletAddress: "not", isFocused: false }
+  public state = { walletAddress: "not", transaction: "", isFocused: false }
 
   public render = (): ReactNode => {
     // Arguments that are passed to the plugin in Python are accessible
@@ -88,6 +94,12 @@ class WalletConnect extends StreamlitComponentBase<State> {
       () => ({ walletAddress: address }),
       () => Streamlit.setComponentValue(this.state.walletAddress)
     )
+    } else if (this.props.args["key"] === "send") {
+      const tx = await sendFixedPayment()
+      this.setState(
+        () => ({ transaction: tx }),
+        () => Streamlit.setComponentValue(this.state.transaction)
+      )
     }
     // Increment state.numClicks, and pass the new value back to
     // Streamlit via `Streamlit.setComponentValue`.
