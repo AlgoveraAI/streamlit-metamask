@@ -60,6 +60,7 @@ class WalletConnect extends StreamlitComponentBase<State> {
       style.borderRadius = "0.2rem"
     }
 
+    const message = this.props.args["message"]
     // Show a button and some text.
     // When the button is clicked, we'll increment our "numClicks" state
     // variable, and send its new value back to Streamlit, where it'll
@@ -73,7 +74,7 @@ class WalletConnect extends StreamlitComponentBase<State> {
           onFocus={this._onFocus}
           onBlur={this._onBlur}
         >
-          Connect Wallet
+          {message}
         </button>
       </span>
     )
@@ -81,11 +82,13 @@ class WalletConnect extends StreamlitComponentBase<State> {
 
   /** Click handler for our "Click Me!" button. */
   private onClicked = async (): Promise<void> => {
+    if (this.props.args["key"] === "wallet") {
     const address = await getAccount()
     this.setState(
       () => ({ walletAddress: address }),
       () => Streamlit.setComponentValue(this.state.walletAddress)
     )
+    }
     // Increment state.numClicks, and pass the new value back to
     // Streamlit via `Streamlit.setComponentValue`.
   }
