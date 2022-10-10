@@ -32,17 +32,19 @@ async function getAccount() {
 async function sendFixedPayment() {
   console.log("Sending fixed payment")
   var ethersProvider = new ethers.providers.Web3Provider(window.ethereum, "any")
+  var signer = ethersProvider.getSigner()
+  const address = await signer.getAddress()
   const gas_price = ethersProvider.getGasPrice()
   const tx = {
-    from: send_account,
-    to: to_address,
-    value: ethers.utils.parseEther(send_token_amount),
-    nonce: window.ethersProvider.getTransactionCount(send_account, "latest"),
-    gasLimit: ethers.utils.hexlify(gas_limit), // 100000
+    from: address,
+    to: '0x6A128bff299E4D766C4f1516Ab97e54b3CE03ce9',
+    value: ethers.utils.parseEther("0.01"), // send_token_amount
+    nonce: ethersProvider.getTransactionCount(address, "latest"),
+    gasLimit: ethers.utils.hexlify(100000), // 100000 - gas_limit
     gasPrice: gas_price,
   }
 
-  walletSigner.sendTransaction(tx).then((transaction) => {
+  signer.sendTransaction(tx).then((transaction) => {
     console.dir(transaction)
     alert("Send finished!")
   })
