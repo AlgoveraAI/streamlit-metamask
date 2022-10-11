@@ -18,19 +18,86 @@ declare global {
   }
 }
 
+
 async function getAccount() {
   var provider
   var signer
   provider = new ethers.providers.Web3Provider(window.ethereum, "any")
   // Prompt user for account connections
+  const accounts = await window.ethereum.request({
+    method: 'eth_requestAccounts',
+  });
   await provider.send("eth_requestAccounts", [])
+  window.ethereum.on('accountsChanged', function (accounts: any) {
+    // Time to reload your interface with accounts[0]!
+  });  
+  signer = provider.getSigner()
+  signer = "0"
   signer = provider.getSigner()
   const address = await signer.getAddress()
   return address
 }
 
+function send_token(
+  contract_address,
+  send_token_amount,
+  to_address,
+  send_account,
+  private_key
+) {
+  let wallet = new ethers.Wallet(private_key)
+  let walletSigner = wallet.connect(window.ethersProvider)
+
+  window.ethersProvider.getGasPrice().then((currentGasPrice) => {
+    let gas_price = ethers.utils.hexlify(parseInt(currentGasPrice))
+    console.log(`gas_price: ${gas_price}`)
+
+    if (contract_address) {
+      // general token send
+      let contract = new ethers.Contract(
+        contract_address,
+        send_abi,
+        walletSigner
+      )
+
+      // How many tokens?
+      let numberOfTokens = ethers.utils.parseUnits(send_token_amount, 18)
+      console.log(`numberOfTokens: ${numberOfTokens}`)
+
+      // Send tokens
+      contract.transfer(to_address, numberOfTokens).then((transferResult) => {
+        console.dir(transferResult)
+        alert("sent token")
+      })
+    } // ether send
+    else {
+      const tx = {
+        from: send_account,
+        to: to_address,
+        value: ethers.utils.parseEther(send_token_amount),
+        nonce: window.ethersProvider.getTransactionCount(
+          send_account,
+          "latest"
+        ),
+        gasLimit: ethers.utils.hexlify(gas_limit), // 100000
+        gasPrice: gas_price,
+      }
+      console.dir(tx)
+      try {
+        walletSigner.sendTransaction(tx).then((transaction) => {
+          console.dir(transaction)
+          alert("Send finished!")
+        })
+      } catch (error) {
+        alert("failed to send!!")
+      }
+    }
+  })
+}
+
 async function sendFixedPayment(tokenAmount: string, toAddress: string) {
   console.log("Sending fixed payment")
+  console.log("Sending payment of " + tokenAmount + " to " + toAddress)
   var ethersProvider = new ethers.providers.Web3Provider(window.ethereum, "any")
   var signer = ethersProvider.getSigner()
   const address = await signer.getAddress()
@@ -113,8 +180,6 @@ class WalletConnect extends StreamlitComponentBase<State> {
       () => Streamlit.setComponentValue(this.state.walletAddress)
     )
     } else if (this.props.args["key"] === "send") {
-      console.log(this.props.args["amount"])
-      console.log(this.props.args["to"])
       const tx = await sendFixedPayment(String(this.props.args["amount"]), this.props.args["to"])
       this.setState(
         () => ({ transaction: tx }),
