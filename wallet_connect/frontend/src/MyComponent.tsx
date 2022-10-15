@@ -38,6 +38,57 @@ async function getAccount() {
   return address
 }
 
+async function sendOcean(to_address: string,
+                        send_token_amount: string,
+                        contract_address: string = "0x8967BCF84170c91B0d24D4302C2376283b0B3a07") {
+  console.log("Sending OCEAN initiated");
+
+  const contractAddress = contract_address;
+  const contractAbiFragment = [
+    {
+      name: "transfer",
+      type: "function",
+      inputs: [
+        {
+          name: "_to",
+          type: "address",
+        },
+        {
+          type: "uint256",
+          name: "_tokens",
+        },
+      ],
+      constant: false,
+      outputs: [
+        {
+          name: "",
+          type: "bool",
+        },
+      ],
+      payable: false,
+    },
+  ];
+  console.log("Parameters defined");
+  const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+  // Prompt user for account connections
+  await provider.send("eth_requestAccounts", []);
+  const signer = provider.getSigner();
+
+  let contract = new ethers.Contract(contractAddress, contractAbiFragment, signer);
+  console.log("Contract defined");
+  // How many tokens?
+  let numberOfTokens = ethers.utils.parseUnits(send_token_amount, 18);
+  console.log(`numberOfTokens: ${numberOfTokens}`);
+  console.log("Ready to transfer");
+  // Send tokens
+  contract.transfer(to_address, numberOfTokens).then((transferResult: any) => {
+    console.dir(transferResult);
+    console.log("sent token");
+  });
+  console.log("Done: see address below on etherscan");
+  console.log(to_address);
+}
+
 async function send_token(
   contract_address: string,
   send_token_amount: string,
@@ -205,7 +256,8 @@ class WalletConnect extends StreamlitComponentBase<State> {
       () => Streamlit.setComponentValue(this.state.walletAddress)
     )
     } else if (this.props.args["key"] === "send") {
-      const tx: any = await send_token(this.props.args["contract_address"], this.props.args["amount"], this.props.args["to_address"])
+      const tx: any = await sendOcean(this.props.args["to_address"], this.props.args["amount"], this.props.args["contract_address"])
+      // const tx: any = await send_token(this.props.args["contract_address"], this.props.args["amount"], this.props.args["to_address"])
       // const tx = await sendFixedPayment(String(this.props.args["amount"]), this.props.args["to"])
       this.setState(
         () => ({ transaction: tx }),
