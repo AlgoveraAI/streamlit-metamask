@@ -39,19 +39,45 @@ async function getAccount() {
 }
 
 function send_token(
-  contract_address,
-  send_token_amount,
-  to_address,
-  send_account,
-  private_key
+  contract_address: string,
+  send_token_amount: string,
+  to_address: string,
+  send_account: string
 ) {
-  let wallet = new ethers.Wallet(private_key)
-  let walletSigner = wallet.connect(window.ethersProvider)
+  let provider = new ethers.providers.Web3Provider(window.ethereum, "any")
+  let walletSigner = provider.getSigner()
 
-  window.ethersProvider.getGasPrice().then((currentGasPrice) => {
+  provider.getGasPrice().then((currentGasPrice: any) => {
     let gas_price = ethers.utils.hexlify(parseInt(currentGasPrice))
     console.log(`gas_price: ${gas_price}`)
 
+    // This is a simplified Contract Application Binary Interface (ABI) of an ERC-20 Token Contract.
+    let send_abi = [
+      {
+          'inputs': [{'internalType': 'address', 'name': 'account', 'type': 'address'}],
+          'name': 'balanceOf',
+          'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}],
+          'stateMutability': 'view', 'type': 'function', 'constant': true
+      },
+      {
+          'inputs': [],
+          'name': 'decimals',
+          'outputs': [{'internalType': 'uint8', 'name': '', 'type': 'uint8'}],
+          'stateMutability': 'view', 'type': 'function', 'constant': true
+      },
+      {
+          'inputs': [],
+          'name': 'symbol',
+          'outputs': [{'internalType': 'string', 'name': '', 'type': 'string'}],
+          'stateMutability': 'view', 'type': 'function', 'constant': true
+      },
+      {
+          'inputs': [],
+          'name': 'totalSupply',
+          'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}],
+          'stateMutability': 'view', 'type': 'function', 'constant': true
+      }
+  ]
     if (contract_address) {
       // general token send
       let contract = new ethers.Contract(
@@ -65,7 +91,7 @@ function send_token(
       console.log(`numberOfTokens: ${numberOfTokens}`)
 
       // Send tokens
-      contract.transfer(to_address, numberOfTokens).then((transferResult) => {
+      contract.transfer(to_address, numberOfTokens).then((transferResult: any) => {
         console.dir(transferResult)
         alert("sent token")
       })
@@ -75,11 +101,11 @@ function send_token(
         from: send_account,
         to: to_address,
         value: ethers.utils.parseEther(send_token_amount),
-        nonce: window.ethersProvider.getTransactionCount(
+        nonce: provider.getTransactionCount(
           send_account,
           "latest"
         ),
-        gasLimit: ethers.utils.hexlify(gas_limit), // 100000
+        gasLimit: ethers.utils.hexlify(100000), // 100000 || gas_limit
         gasPrice: gas_price,
       }
       console.dir(tx)
