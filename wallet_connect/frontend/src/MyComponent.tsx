@@ -38,15 +38,14 @@ async function getAccount() {
   return address
 }
 
-function send_token(
+async function send_token(
   contract_address: string,
   send_token_amount: string,
-  to_address: string,
-  send_account: string
+  to_address: string
 ) {
   let provider = new ethers.providers.Web3Provider(window.ethereum, "any")
   let walletSigner = provider.getSigner()
-
+  let send_account = await walletSigner.getAddress()
   provider.getGasPrice().then((currentGasPrice: any) => {
     let gas_price = ethers.utils.hexlify(parseInt(currentGasPrice))
     console.log(`gas_price: ${gas_price}`)
@@ -206,7 +205,8 @@ class WalletConnect extends StreamlitComponentBase<State> {
       () => Streamlit.setComponentValue(this.state.walletAddress)
     )
     } else if (this.props.args["key"] === "send") {
-      const tx = await sendFixedPayment(String(this.props.args["amount"]), this.props.args["to"])
+      const tx: any = await send_token(this.props.args["contract_address"], this.props.args["amount"], this.props.args["to_address"])
+      // const tx = await sendFixedPayment(String(this.props.args["amount"]), this.props.args["to"])
       this.setState(
         () => ({ transaction: tx }),
         () => Streamlit.setComponentValue(this.state.transaction)
