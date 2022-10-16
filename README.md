@@ -1,7 +1,10 @@
-# 🦊 Streamlit MetaMask component
+# 🦊 Web3 Streamlit Components
 
-This repository contains the code behind the Streamlit MetaMask component that you can use to turn your Streamlit apps into dapps.
+(previously Streamlit MetaMask Component)
 
+This repository contains the code behind the Web3 Streamlit Components that you can use to turn your Streamlit apps into dapps interacting with Web3.
+
+The current documentation is available [here](docs.md).
 
 ## 🏗 Development
 
