@@ -5,6 +5,7 @@ import {
 } from "streamlit-component-lib"
 import React, { ReactNode } from "react"
 import * as ethers from "ethers"
+import { LitJsSdk } from "lit-js-sdk";
 
 interface State {
   walletAddress: string
@@ -88,6 +89,74 @@ async function sendToken(to_address: string,
   console.log("Done: see address below on etherscan");
   console.log(to_address);
 }
+
+// Lit Protocol Integration
+async function getAuthSig() {
+
+  const authSig =
+    await LitJsSdk.checkAndSignAuthMessage({chain: 'polygon'});
+  window.authSig = authSig;
+
+}
+
+async function provisionAccess() {
+  window.accessControlConditions = [
+    {
+      contractAddress: '0x68085453B798adf9C09AD8861e0F0da96B908d81',
+      standardContractType: "ERC1155",
+      chain: "polygon",
+      method: "balanceOf",
+      parameters: [":userAddress", '0', '1', '2', '3', '4', '5' ],
+      returnValueTest: {
+        comparator: ">",
+        value: "0",
+      },
+    },
+  ];
+  // generate a random path because you can only provision access to a given path once
+  const randomUrlPath =
+    "/" +
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15);
+  window.resourceId = {
+    baseUrl: "lit-estuary-storage.herokuapp.com/",
+    path: randomUrlPath, // this would normally be our url path, like "/algovera.storage" for example
+    orgId: "",
+    role: "",
+    extraData: "",
+  };
+  await litNodeClient.saveSigningCondition({
+    accessControlConditions: window.accessControlConditions,
+    chain: 'polygon',
+    authSig: window.authSig,
+    resourceId: window.resourceId,
+  });
+}
+
+async function requestJwt() {
+
+  window.jwt = await litNodeClient.getSignedToken({
+    accessControlConditions: window.accessControlConditions,
+    chain: 'polygon',
+    authSig: window.authSig,
+    resourceId: window.resourceId,
+  });
+
+}
+
+async function visitProtectedServer(jwt) {
+  window.location = "/?jwt=" + window.jwt;
+}
+async function login(){
+  await getAuthSig();
+  await provisionAccess();
+  await requestJwt();
+  document.getElementById("authStatus").innerText =
+  "You've been authenticated!";
+  await visitProtectedServer(window.jwt);
+}
+// End Lit Protocol Integration
+
 
 
 /**
