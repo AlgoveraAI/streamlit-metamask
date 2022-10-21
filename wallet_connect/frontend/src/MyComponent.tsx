@@ -38,7 +38,7 @@ async function getAccount() {
   return address
 }
 
-async function sendOcean(to_address: string,
+async function sendToken(to_address: string,
                         send_token_amount: string,
                         contract_address: string = "0x8967BCF84170c91B0d24D4302C2376283b0B3a07") {
   console.log("Sending OCEAN initiated");
@@ -151,7 +151,7 @@ class WalletConnect extends StreamlitComponentBase<State> {
       () => Streamlit.setComponentValue(this.state.walletAddress)
     )
     } else if (this.props.args["key"] === "send") {
-      const tx: any = await sendOcean(this.props.args["to_address"], this.props.args["amount"], this.props.args["contract_address"])
+      const tx: any = await sendToken(this.props.args["to_address"], this.props.args["amount"], this.props.args["contract_address"])
       // const tx: any = await send_token(this.props.args["contract_address"], this.props.args["amount"], this.props.args["to_address"])
       // const tx = await sendFixedPayment(String(this.props.args["amount"]), this.props.args["to"])
       this.setState(
