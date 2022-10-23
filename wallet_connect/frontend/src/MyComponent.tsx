@@ -10,6 +10,9 @@ interface State {
   walletAddress: string
   transaction: string
   isFocused: boolean
+  encryptedString: string
+  encryptedSymmetricKey: string
+  decryptedString: string
 }
 
 declare global {
@@ -249,7 +252,7 @@ async function decrypt(encryptedString: string, encryptedSymmetricKey: string) {
  * automatically when your component should be re-rendered.
  */
 class WalletConnect extends StreamlitComponentBase<State> {
-  public state = { walletAddress: "not", transaction: "", isFocused: false }
+  public state = { walletAddress: "not", transaction: "", isFocused: false, encryptedString: "", encryptedSymmetricKey: "", decryptedString: "" };
 
   public render = (): ReactNode => {
     // Arguments that are passed to the plugin in Python are accessible
@@ -311,6 +314,18 @@ class WalletConnect extends StreamlitComponentBase<State> {
       this.setState(
         () => ({ transaction: tx }),
         () => Streamlit.setComponentValue(this.state.transaction)
+      )
+    } else if (this.props.args["key"] === "encrypt") {
+      const { encryptedString, encryptedSymmetricKey } = await encrypt()
+      this.setState(
+        () => ({ encryptedString: encryptedString, encryptedSymmetricKey: encryptedSymmetricKey }),
+        () => Streamlit.setComponentValue({ encryptedString, encryptedSymmetricKey })
+      )
+    } else if (this.props.args["key"] === "decrypt") {
+      const { decryptedString } = await decrypt(this.state.encryptedString, this.state.encryptedSymmetricKey)
+      this.setState(
+        () => ({ decryptedString: decryptedString }),
+        () => Streamlit.setComponentValue(decryptedString)
       )
     }
     // Increment state.numClicks, and pass the new value back to
