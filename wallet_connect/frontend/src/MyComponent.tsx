@@ -5,7 +5,6 @@ import {
 } from "streamlit-component-lib"
 import React, { ReactNode } from "react"
 import * as ethers from "ethers"
-import { LitJsSdk } from "lit-js-sdk";
 
 interface State {
   walletAddress: string
@@ -91,70 +90,57 @@ async function sendToken(to_address: string,
 }
 
 // Lit Protocol Integration
-async function getAuthSig() {
+const LitJsSdk = require("lit-js-sdk");
+const express = require("express");
+const port = process.env.PORT || 8000;
+const path = require("path");
+var cookieParser = require("cookie-parser");
 
-  const authSig =
-    await LitJsSdk.checkAndSignAuthMessage({chain: 'polygon'});
-  window.authSig = authSig;
+// This displays message that the server running and listening to specified port
+const app = express();
+app.listen(port, () => console.log(`Listening on port ${port}`)); //Line 6
 
-}
+async function checkUser(req: any, res: any, next: any) {
 
-async function provisionAccess() {
-  window.accessControlConditions = [
-    {
-      contractAddress: '0x68085453B798adf9C09AD8861e0F0da96B908d81',
-      standardContractType: "ERC1155",
-      chain: "polygon",
-      method: "balanceOf",
-      parameters: [":userAddress", '0', '1', '2', '3', '4', '5' ],
-      returnValueTest: {
-        comparator: ">",
-        value: "0",
-      },
-    },
-  ];
-  // generate a random path because you can only provision access to a given path once
-  const randomUrlPath =
-    "/" +
-    Math.random().toString(36).substring(2, 15) +
-    Math.random().toString(36).substring(2, 15);
-  window.resourceId = {
-    baseUrl: "lit-estuary-storage.herokuapp.com/",
-    path: randomUrlPath, // this would normally be our url path, like "/algovera.storage" for example
-    orgId: "",
-    role: "",
-    extraData: "",
-  };
-  await litNodeClient.saveSigningCondition({
-    accessControlConditions: window.accessControlConditions,
-    chain: 'polygon',
-    authSig: window.authSig,
-    resourceId: window.resourceId,
-  });
-}
+  const jwt = req.query?.jwt || req.cookies?.jwt;
+  console.log("jwt is ", jwt);
+  if (!jwt) {
+    res.status(401).send("Unauthorized, return to login page.");
+    return;
+  }
 
-async function requestJwt() {
+  const { verified, header, payload } = LitJsSdk.verifyJwt({ jwt });
 
-  window.jwt = await litNodeClient.getSignedToken({
-    accessControlConditions: window.accessControlConditions,
-    chain: 'polygon',
-    authSig: window.authSig,
-    resourceId: window.resourceId,
+  if (
+    !verified ||
+    //payload.baseUrl !== "lit-estuary-storage.herokuapp.com/" || // Uncomment this and add your own URL that you are protecting
+    //payload.path !== "/" || // Uncomment this and add your own URL Path that you are protecting
+    payload.orgId !== "" ||
+    payload.role !== "" ||
+    payload.extraData !== ""
+  ) {
+    // Reject this request!
+    res.status(401).send("Sorry, looks like you are not a holder of an Algovera Reputation NFT.");
+    return;
+  }
+
+  res.cookie("jwt", jwt, {
+    secure: process.env.NODE_ENV !== "development",
+    httpOnly: false,
+    sameSite: "lax",
   });
 
+  if (req.query?.jwt) {
+    const newUrl = req.originalUrl.replace(/\?jwt=.*/, "");
+    console.log("redirecting to ", newUrl);
+    // redirect to strip the jwt so the user can't just copy / paste this url to share this website
+    await res.redirect(newUrl);
+  }
+
+  next();
 }
 
-async function visitProtectedServer(jwt) {
-  window.location = "/?jwt=" + window.jwt;
-}
-async function login(){
-  await getAuthSig();
-  await provisionAccess();
-  await requestJwt();
-  document.getElementById("authStatus").innerText =
-  "You've been authenticated!";
-  await visitProtectedServer(window.jwt);
-}
+
 // End Lit Protocol Integration
 
 
