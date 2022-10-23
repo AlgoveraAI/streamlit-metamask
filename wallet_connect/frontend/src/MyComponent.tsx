@@ -208,6 +208,43 @@ async function encrypt() {
   }
 }
 
+
+async function decrypt(encryptedString: string, encryptedSymmetricKey: string) {
+  const litNodeClient = await getClient();
+
+  const authSig = await getAuthSig();
+
+  const chain = "polygon";
+  window.accessControlConditions = [
+    {
+      contractAddress: '0x68085453B798adf9C09AD8861e0F0da96B908d81',
+      standardContractType: "ERC1155",
+      chain: "polygon",
+      method: "balanceOf",
+      parameters: [":userAddress", '0', '1', '2', '3', '4', '5' ],
+      returnValueTest: {
+        comparator: ">",
+        value: "0",
+      },
+    },
+  ];
+  const accessControlConditions = window.accessControlConditions;
+
+  const symmetricKey = await litNodeClient.getEncryptionKey({
+    accessControlConditions,
+    toDecrypt: encryptedSymmetricKey,
+    chain,
+    authSig
+  })
+
+  const decryptedString = await LitJsSdk.decryptString(
+    encryptedString,
+    symmetricKey
+  );
+
+  return { decryptedString }
+}
+
 async function provisionAccess() {
   const litNodeClient = await getClient();
 
