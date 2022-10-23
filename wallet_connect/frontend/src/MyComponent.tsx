@@ -5,6 +5,7 @@ import {
 } from "streamlit-component-lib"
 import React, { ReactNode } from "react"
 import * as ethers from "ethers"
+const LitJsSdk = require("lit-js-sdk");
 
 interface State {
   walletAddress: string
@@ -102,55 +103,6 @@ async function sendToken(to_address: string,
 }
 
 // Lit Protocol Integration
-const LitJsSdk = require("lit-js-sdk");
-const express = require("express");
-const port = process.env.PORT || 8000;
-const path = require("path");
-var cookieParser = require("cookie-parser");
-
-// This displays message that the server running and listening to specified port
-const app = express();
-app.listen(port, () => console.log(`Listening on port ${port}`)); //Line 6
-
-async function checkUser(req: any, res: any, next: any) {
-
-  const jwt = req.query?.jwt || req.cookies?.jwt;
-  console.log("jwt is ", jwt);
-  if (!jwt) {
-    res.status(401).send("Unauthorized, return to login page.");
-    return;
-  }
-
-  const { verified, header, payload } = LitJsSdk.verifyJwt({ jwt });
-
-  if (
-    !verified ||
-    //payload.baseUrl !== "lit-estuary-storage.herokuapp.com/" || // Uncomment this and add your own URL that you are protecting
-    //payload.path !== "/" || // Uncomment this and add your own URL Path that you are protecting
-    payload.orgId !== "" ||
-    payload.role !== "" ||
-    payload.extraData !== ""
-  ) {
-    // Reject this request!
-    res.status(401).send("Sorry, looks like you are not a holder of an Algovera Reputation NFT.");
-    return;
-  }
-
-  res.cookie("jwt", jwt, {
-    secure: process.env.NODE_ENV !== "development",
-    httpOnly: false,
-    sameSite: "lax",
-  });
-
-  if (req.query?.jwt) {
-    const newUrl = req.originalUrl.replace(/\?jwt=.*/, "");
-    console.log("redirecting to ", newUrl);
-    // redirect to strip the jwt so the user can't just copy / paste this url to share this website
-    await res.redirect(newUrl);
-  }
-
-  next();
-}
 
 // Set up the middleware stack
 async function getAuthSig() {
