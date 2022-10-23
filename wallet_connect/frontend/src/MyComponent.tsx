@@ -19,7 +19,12 @@ declare global {
     resourceId: any,
     accessControlConditions: any,
     litNodeClient: any,
+    jwt: any,
+    location: Location,
   }
+}
+interface Document {
+  authStatus: any,
 }
 
 
@@ -150,17 +155,22 @@ app.use(checkUser);
 
 
 async function getAuthSig() {
-
-  const authSig =
-    await LitJsSdk.checkAndSignAuthMessage({chain: 'polygon'});
+  const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'polygon'});
   window.authSig = authSig;
-
+  return authSig
 }
 
-async function provisionAccess() {
+async function getClient() {
   const litNodeClient = new LitJsSdk.LitNodeClient();
   await litNodeClient.connect();
   window.litNodeClient = litNodeClient;
+
+  return litNodeClient
+}
+
+
+async function encrypt() {
+  const litNodeClient = await getClient();
 
   window.accessControlConditions = [
     {
@@ -175,6 +185,63 @@ async function provisionAccess() {
       },
     },
   ];
+
+  const authSig = await getAuthSig();
+  const accessControlConditions = window.accessControlConditions;
+  const chain = "polygon";
+
+  // encrypting content -> this we can change to our own content
+  const { encryptedString, symmetricKey } = await LitJsSdk.encryptString(
+    "this is a secret message"
+  );
+  // saving encrypted content to Lit Node
+  const encryptedSymmetricKey = await window.litNodeClient.saveEncryptionKey({
+    accessControlConditions,
+    symmetricKey,
+    authSig,
+    chain,
+  });
+
+  return {
+    encryptedString,
+    encryptedSymmetricKey: LitJsSdk.uint8arrayToString(encryptedSymmetricKey, "base16")
+  }
+}
+
+async function provisionAccess() {
+  const litNodeClient = await getClient();
+
+  window.accessControlConditions = [
+    {
+      contractAddress: '0x68085453B798adf9C09AD8861e0F0da96B908d81',
+      standardContractType: "ERC1155",
+      chain: "polygon",
+      method: "balanceOf",
+      parameters: [":userAddress", '0', '1', '2', '3', '4', '5' ],
+      returnValueTest: {
+        comparator: ">",
+        value: "0",
+      },
+    },
+  ];
+
+  const authSig = await getAuthSig();
+  const accessControlConditions = window.accessControlConditions;
+  const chain = "polygon";
+
+  // encrypting content -> this we can change to our own content
+  const { encryptedString, symmetricKey } = await LitJsSdk.encryptString(
+    "this is a secret message"
+  );
+  // saving encrypted content to Lit Node
+  const encryptedSymmetricKey = await window.litNodeClient.saveEncryptionKey({
+    accessControlConditions,
+    symmetricKey,
+    authSig,
+    chain,
+  });
+
+
   // generate a random path because you can only provision access to a given path once
   const randomUrlPath =
     "/" +
@@ -195,7 +262,25 @@ async function provisionAccess() {
   });
 }
 
+async function requestJwt() {
+  const litNodeClient = await getClient();
 
+  window.jwt = await litNodeClient.getSignedToken({
+    accessControlConditions: window.accessControlConditions,
+    chain: 'polygon',
+    authSig: window.authSig,
+    resourceId: window.resourceId,
+  });
+
+}
+async function verifyJwt() {
+  if (document != null) {
+    document.getElementById('verificationStatus').innerText = "Verifying, please wait..."
+    const data = await fetch('/verify?jwt=' + window.jwt).then(resp => resp.json())
+    document.getElementById('verificationStatus').innerText = "Verified!  Response is \n" + JSON.stringify(data, null, 2)
+    document.getElementById('verificationNote').style = 'display: block;'
+  }
+}
 // End Lit Protocol Integration
 
 
