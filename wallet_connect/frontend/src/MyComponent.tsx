@@ -11,8 +11,12 @@ import {
   JsonRpcSigner,
   JsonRpcProvider,
 } from "@ethersproject/providers";
+// import { LitConnectModal } from "lit-connect-modal";
 
 const LitJsSdk = require("lit-js-sdk");
+const connectModal = require("lit-connect-modal");
+const LitConnectModal: any = connectModal;
+
 
 interface State {
   walletAddress: string
@@ -400,12 +404,13 @@ async function connectWeb3({ chainId = 1 } = {}) {
   };
 
   console.log("getting provider via lit connect modal");
-
-  // const dialog = new LitConnectModal({
-  //   providerOptions,
-  // });
-  // const provider = await dialog.getWalletProvider();
-  const provider: any = new ethers.providers.Web3Provider(window.ethereum, "any")
+  console.log("LitConnectModal", LitConnectModal);
+  const dialog = new LitConnectModal({
+    providerOptions,
+  });
+  console.log("got provider via lit connect modal");
+  const provider = await dialog.getWalletProvider();
+  // const provider: any = new ethers.providers.Web3Provider(window.ethereum, "any")
 
   console.log("got provider", provider);
   const web3 = new Web3Provider(provider);
