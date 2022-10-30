@@ -470,6 +470,33 @@ async function connectWeb3({ chainId = 1 } = {}) {
   return { web3, account };
 }
 
+// wrapper around signMessage that tries personal_sign first.  this is to fix a
+// bug with walletconnect where just using signMessage was failing
+export const signMessageAsync = async (signer, address, message) => {
+  const messageBytes = toUtf8Bytes(message);
+  if (signer instanceof JsonRpcSigner) {
+    try {
+      log("Signing with personal_sign");
+      const signature = await signer.provider.send("personal_sign", [
+        hexlify(messageBytes),
+        address.toLowerCase(),
+      ]);
+      return signature;
+    } catch (e) {
+      log(
+        "Signing with personal_sign failed, trying signMessage as a fallback"
+      );
+      if (e.message.includes("personal_sign")) {
+        return await signer.signMessage(messageBytes);
+      }
+      throw e;
+    }
+  } else {
+    log("signing with signMessage");
+    return await signer.signMessage(messageBytes);
+  }
+};
+
 /**
  * @typedef {Object} AuthSig
  * @property {string} sig - The actual hex-encoded signature
