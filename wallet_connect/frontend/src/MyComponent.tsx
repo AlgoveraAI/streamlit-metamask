@@ -6,7 +6,8 @@ import {
 import React, { ReactNode } from "react"
 import * as ethers from "ethers"
 import { encrypt, decrypt } from "./litComponent"
-
+import { readFileSync, writeFileSync, promises as fsPromises } from 'fs';
+import { join } from 'path';
 
 interface State {
   walletAddress: string
@@ -104,6 +105,23 @@ async function sendToken(to_address: string,
   console.log(to_address);
 }
 
+function syncWriteFile(filename: string, data: any) {
+  /**
+   * flags:
+   *  - w = Open file for reading and writing. File is created if not exists
+   *  - a+ = Open file for reading and appending. The file is created if not exists
+   */
+  writeFileSync(join(__dirname, filename), data, {
+    flag: 'w',
+  });
+
+  const contents = readFileSync(join(__dirname, filename), 'utf-8');
+  console.log(contents); // 👉️ "One Two Three Four"
+
+  return contents;
+}
+
+
 
 /**
  * This is a React-based component template. The `render()` function is called
@@ -175,26 +193,24 @@ class WalletConnect extends StreamlitComponentBase<State> {
       )
     } else if (this.props.args["key"] === "encrypt") {
       const { encryptedString, encryptedSymmetricKey } = await encrypt(this.props.args["message_to_encrypt"])
+      syncWriteFile('./example.txt', encryptedString);
       // const sth = await getAuthSig()
       // console.log("Connected Web3", sth)
       console.log("encryptedString", encryptedString)
       console.log("encryptedSymmetricKey", encryptedSymmetricKey)
-      console.log("window encryptedString:", window.encryptedString)
-      const decryptedString = await decrypt(encryptedString, encryptedSymmetricKey)
-      console.log("decryptedString", decryptedString)
+      // const decryptedString = await decrypt(encryptedString, encryptedSymmetricKey)
+      // console.log("decryptedString", decryptedString)
       this.setState(
         () => ({ encryptedString: encryptedString, encryptedSymmetricKey: encryptedSymmetricKey }),
         () => Streamlit.setComponentValue({ encryptedString, encryptedSymmetricKey })
       )
     } else if (this.props.args["key"] === "decrypt") {
-      console.log("Checking we still have the encrypted string and key")
-      console.log("CHECKING WINDOW encryptedString", window.encryptedString)
-      console.log("encryptedSymmetricKey", this.props.args["encrypted_symmetric_key"])
-      const { decryptedString } = await decrypt(window.encryptedString, this.props.args["encrypted_symmetric_key"])
+      const { decryptedString } = await decrypt(window.encryptedString, this.state.encryptedSymmetricKey)
       this.setState(
         () => ({ decryptedString: decryptedString }),
         () => Streamlit.setComponentValue(decryptedString)
       )
+      console.log("State of encrypted string3:", this.state.encryptedString)
     }
     // Increment state.numClicks, and pass the new value back to
     // Streamlit via `Streamlit.setComponentValue`.
