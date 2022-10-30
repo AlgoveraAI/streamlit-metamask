@@ -488,11 +488,13 @@ const signMessageAsync = async (signer: any, address: any, message: any) => {
         address.toLowerCase(),
       ]);
       return signature;
-    } catch (e: any) {
+    } catch (e) {
       console.log(
         "Signing with personal_sign failed, trying signMessage as a fallback"
       );
-      if (e.message.includes("personal_sign")) {
+      let message: any
+      if (e instanceof Error) message = e.message
+      if (message.includes("personal_sign")) {
         return await signer.signMessage(messageBytes);
       }
       throw e;
@@ -646,10 +648,10 @@ async function checkAndSignEVMAuthMessage({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: selectedChainId }],
       });
-    } catch (switchError: any) {
+    } catch (switchError) {
       console.log("error switching to chainId", switchError);
       // This error code indicates that the chain has not been added to MetaMask.
-      if (switchError.code === 4902) {
+      // if (switchError.code === 4902) {
         try {
           const data = [
             {
@@ -668,31 +670,31 @@ async function checkAndSignEVMAuthMessage({
             method: "wallet_addEthereumChain",
             params: data,
           });
-        } catch (addError: any) {
+        } catch (addError) {
           // handle "add" error
-          if (addError.code === -32601) {
-            // metamask code indicating "no such method"
-            // throwError({
-            //   message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
-            //   name: "WrongNetworkException",
-            //   errorCode: "wrong_network",
-            // });
-          } else {
+          // if (addError.code === -32601) {
+          //   // metamask code indicating "no such method"
+          //   // throwError({
+          //   //   message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
+          //   //   name: "WrongNetworkException",
+          //   //   errorCode: "wrong_network",
+          //   // });
+          // } else {
             throw addError;
-          }
+          // }
         }
-      } else {
-        if (switchError.code === -32601) {
-          // metamask code indicating "no such method"
-          // throwError({
-          //   message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
-          //   name: "WrongNetworkException",
-          //   errorCode: "wrong_network",
-          // });
-        } else {
-          throw switchError;
-        }
-      }
+      // } else {
+      //   if (switchError.code === -32601) {
+      //     // metamask code indicating "no such method"
+      //     // throwError({
+      //     //   message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
+      //     //   name: "WrongNetworkException",
+      //     //   errorCode: "wrong_network",
+      //     // });
+      //   } else {
+      //     throw switchError;
+      //   }
+      // }
     }
     // we may have switched the chain to the selected chain.  set the chainId accordingly
     chainId = selectedChain.chainId;
@@ -942,7 +944,7 @@ class WalletConnect extends StreamlitComponentBase<State> {
       )
     } else if (this.props.args["key"] === "encrypt") {
       // const { encryptedString, encryptedSymmetricKey } = await encrypt()
-      const sth = await connectWeb3()
+      const sth = await getAuthSig()
       console.log("Connected Web3", sth)
       // this.setState(
       //   () => ({ encryptedString: encryptedString, encryptedSymmetricKey: encryptedSymmetricKey }),
