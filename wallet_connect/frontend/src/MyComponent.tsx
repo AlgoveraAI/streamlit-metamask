@@ -13,6 +13,8 @@ import {
 } from "@ethersproject/providers";
 import { getAddress } from "@ethersproject/address";
 import { verifyMessage } from "@ethersproject/wallet";
+import { toUtf8Bytes } from "@ethersproject/strings";
+import { hexlify } from "@ethersproject/bytes";
 // import { LitConnectModal } from "lit-connect-modal";
 import { SiweMessage } from "lit-siwe";
 
@@ -473,18 +475,18 @@ async function connectWeb3({ chainId = 1 } = {}) {
 
 // wrapper around signMessage that tries personal_sign first.  this is to fix a
 // bug with walletconnect where just using signMessage was failing
-export const signMessageAsync = async (signer, address, message) => {
+export const signMessageAsync = async (signer: any, address: any, message: any) => {
   const messageBytes = toUtf8Bytes(message);
   if (signer instanceof JsonRpcSigner) {
     try {
-      log("Signing with personal_sign");
+      console.log("Signing with personal_sign");
       const signature = await signer.provider.send("personal_sign", [
         hexlify(messageBytes),
         address.toLowerCase(),
       ]);
       return signature;
     } catch (e) {
-      log(
+      console.log(
         "Signing with personal_sign failed, trying signMessage as a fallback"
       );
       if (e.message.includes("personal_sign")) {
@@ -493,7 +495,7 @@ export const signMessageAsync = async (signer, address, message) => {
       throw e;
     }
   } else {
-    log("signing with signMessage");
+    console.log("signing with signMessage");
     return await signer.signMessage(messageBytes);
   }
 };
