@@ -13,6 +13,7 @@ import {
 } from "@ethersproject/providers";
 import { getAddress } from "@ethersproject/address";
 // import { LitConnectModal } from "lit-connect-modal";
+import { SiweMessage } from "lit-siwe";
 
 const LitJsSdk = require("lit-js-sdk");
 const connectModal = require("lit-connect-modal");
@@ -470,6 +471,45 @@ async function connectWeb3({ chainId = 1 } = {}) {
 }
 
 /**
+ * @typedef {Object} AuthSig
+ * @property {string} sig - The actual hex-encoded signature
+ * @property {string} derivedVia - The method used to derive the signature. Typically "web3.eth.personal.sign"
+ * @property {string} signedMessage - The message that was signed
+ * @property {string} address - The crypto wallet address that signed the message
+ */
+
+ export async function signMessage({ body, web3, account }) {
+  if (!web3 || !account) {
+    let resp = await connectWeb3();
+    web3 = resp.web3;
+    account = resp.account;
+  }
+
+  log("pausing...");
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  log("signing with ", account);
+  // const signature = await web3.getSigner().signMessage(body);
+  const signature = await signMessageAsync(web3.getSigner(), account, body);
+  //.request({ method: 'personal_sign', params: [account, body] })
+  const address = verifyMessage(body, signature).toLowerCase();
+
+  log("Signature: ", signature);
+  log("recovered address: ", address);
+
+  if (address !== account) {
+    const msg = `ruh roh, the user signed with a different address (${address}) then they\'re using with web3 (${account}).  this will lead to confusion.`;
+    console.error(msg);
+    alert(
+      "something seems to be wrong with your wallets message signing.  maybe restart your browser or your wallet.  your recovered sig address does not match your web3 account address"
+    );
+    throw new Error(msg);
+  }
+
+  return { signature, address };
+}
+
+
+/**
  * Sign the auth message with the user's wallet, and store it in localStorage.  Called by checkAndSignAuthMessage if the user does not have a signature stored.
  * @param {Object} params
  * @param {Web3Provider} params.web3 An ethers.js Web3Provider instance
@@ -484,7 +524,7 @@ async function connectWeb3({ chainId = 1 } = {}) {
 }: any) {
   // const { chainId } = await web3.getNetwork();
 
-  const preparedMessage = {
+  const preparedMessage: any = {
     domain: globalThis.location.host,
     address: getAddress(account), // convert to EIP-55 format or else SIWE complains
     uri: globalThis.location.origin,
