@@ -11,6 +11,7 @@ import {
   JsonRpcSigner,
   JsonRpcProvider,
 } from "@ethersproject/providers";
+import { getAddress } from "@ethersproject/address";
 // import { LitConnectModal } from "lit-connect-modal";
 
 const LitJsSdk = require("lit-js-sdk");
