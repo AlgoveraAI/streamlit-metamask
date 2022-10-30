@@ -24,6 +24,7 @@ declare global {
     resourceId: any,
     accessControlConditions: any,
     litNodeClient: any,
+    encryptedString: any,
     jwt: any,
     location: Location,
   }
@@ -173,20 +174,23 @@ class WalletConnect extends StreamlitComponentBase<State> {
         () => Streamlit.setComponentValue(this.state.transaction)
       )
     } else if (this.props.args["key"] === "encrypt") {
-      const { encryptedString, encryptedSymmetricKey } = await encrypt()
+      const { encryptedString, encryptedSymmetricKey } = await encrypt(this.props.args["message_to_encrypt"])
       // const sth = await getAuthSig()
       // console.log("Connected Web3", sth)
       console.log("encryptedString", encryptedString)
       console.log("encryptedSymmetricKey", encryptedSymmetricKey)
+      console.log("window encryptedString:", window.encryptedString)
+      const decryptedString = await decrypt(encryptedString, encryptedSymmetricKey)
+      console.log("decryptedString", decryptedString)
       this.setState(
         () => ({ encryptedString: encryptedString, encryptedSymmetricKey: encryptedSymmetricKey }),
         () => Streamlit.setComponentValue({ encryptedString, encryptedSymmetricKey })
       )
     } else if (this.props.args["key"] === "decrypt") {
       console.log("Checking we still have the encrypted string and key")
-      console.log("encryptedString", this.state.encryptedString)
-      console.log("encryptedSymmetricKey", this.state.encryptedSymmetricKey)
-      const { decryptedString } = await decrypt(this.props.args["encrypted_string"], this.props.args["encrypted_symmetric_key"])
+      console.log("CHECKING WINDOW encryptedString", window.encryptedString)
+      console.log("encryptedSymmetricKey", this.props.args["encrypted_symmetric_key"])
+      const { decryptedString } = await decrypt(window.encryptedString, this.props.args["encrypted_symmetric_key"])
       this.setState(
         () => ({ decryptedString: decryptedString }),
         () => Streamlit.setComponentValue(decryptedString)
