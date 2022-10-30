@@ -763,10 +763,10 @@ export async function decrypt(encryptedString: string, encryptedSymmetricKey: st
     return { decryptedString }
 }
 
-async function provisionAccess() {
+async function provisionAccess(contractAddress: string) {
     window.accessControlConditions = [
       {
-        contractAddress: '0x68085453B798adf9C09AD8861e0F0da96B908d81',
+        contractAddress: contractAddress,
         standardContractType: "ERC1155",
         chain: "polygon",
         method: "balanceOf",
@@ -827,10 +827,29 @@ async function requestJwt() {
 //     window.location = "/?jwt=" + window.jwt;
 // }
 
-export async function login(){
+async function mintNft() {
+    console.log("Minting NFT, please wait for the tx to confirm...")
+
+    window.chain = "polygon"
+
+    const {
+      txHash,
+      tokenId,
+      tokenAddress,
+      mintingAddress,
+      authSig
+    } = await LitJsSdk.mintLIT({ chain: window.chain, quantity: 1 })
+    window.tokenId = tokenId
+    window.tokenAddress = tokenAddress
+    window.authSig = authSig
+
+    return txHash
+}
+
+export async function login() {
     try {
         await getAuthSig();
-        await provisionAccess();
+        await provisionAccess('0x68085453B798adf9C09AD8861e0F0da96B908d81');
         await requestJwt();
         console.log("You're logged in!");
         console.log("window.jwt", window.jwt);
@@ -842,6 +861,21 @@ export async function login(){
     // document.getElementById("authStatus").innerText =
     // "You've been authenticated!";
     // await visitProtectedServer(window.jwt);
+}
+
+export async function mintAndLogin() {
+    try {
+        const tx = await mintNft()
+        console.log("tx", tx)
+        await provisionAccess(LitJsSdk.LIT_CHAINS[window.chain].contractAddress);
+        await requestJwt();
+        console.log("You're logged in!");
+        console.log("window.jwt", window.jwt);
+        return true
+    } catch (e) {
+        console.log("Error", e);
+        return false
+    }
 }
 
 // End Lit Protocol Integration
