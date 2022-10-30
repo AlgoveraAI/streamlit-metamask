@@ -633,17 +633,6 @@ async function checkAndSignAuthMessage({
   resources,
   switchChain = true,
 }: any) {
-  const chainInfo = ALL_LIT_CHAINS[chain];
-  if (!chainInfo) {
-    throwError({
-      message: `Unsupported chain selected.  Please select one of: ${Object.keys(
-        ALL_LIT_CHAINS
-      )}`,
-      name: "UnsupportedChainException",
-      errorCode: "unsupported_chain",
-    });
-  }
-
   return checkAndSignEVMAuthMessage({ chain, resources, switchChain });
 }
 
