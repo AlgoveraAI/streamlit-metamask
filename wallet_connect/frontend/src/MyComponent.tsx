@@ -16,6 +16,7 @@ interface State {
   encryptedString: string
   encryptedSymmetricKey: string
   decryptedString: string
+  loggedIn: boolean
 }
 
 declare global {
@@ -128,7 +129,7 @@ function syncWriteFile(filename: string, data: any) {
  * automatically when your component should be re-rendered.
  */
 class WalletConnect extends StreamlitComponentBase<State> {
-  public state = { walletAddress: "not", transaction: "", isFocused: false, encryptedString: "", encryptedSymmetricKey: "", decryptedString: "" };
+  public state = { walletAddress: "not", transaction: "", isFocused: false, encryptedString: "", encryptedSymmetricKey: "", decryptedString: "", loggedIn: false };
 
   public render = (): ReactNode => {
     // Arguments that are passed to the plugin in Python are accessible
@@ -178,40 +179,45 @@ class WalletConnect extends StreamlitComponentBase<State> {
   /** Click handler for our "Click Me!" button. */
   private onClicked = async (): Promise<void> => {
     if (this.props.args["key"] === "wallet") {
-    const address = await getAccount()
-    this.setState(
-      () => ({ walletAddress: address }),
-      () => Streamlit.setComponentValue(this.state.walletAddress)
-    )
+      const address = await getAccount()
+      this.setState(
+        () => ({ walletAddress: address }),
+        () => Streamlit.setComponentValue(this.state.walletAddress)
+      )
     } else if (this.props.args["key"] === "send") {
-      const tx: any = await sendToken(this.props.args["to_address"], this.props.args["amount"], this.props.args["contract_address"])
-      // const tx: any = await send_token(this.props.args["contract_address"], this.props.args["amount"], this.props.args["to_address"])
-      // const tx = await sendFixedPayment(String(this.props.args["amount"]), this.props.args["to"])
-      this.setState(
-        () => ({ transaction: tx }),
-        () => Streamlit.setComponentValue(this.state.transaction)
-      )
+        const tx: any = await sendToken(this.props.args["to_address"], this.props.args["amount"], this.props.args["contract_address"])
+        // const tx: any = await send_token(this.props.args["contract_address"], this.props.args["amount"], this.props.args["to_address"])
+        // const tx = await sendFixedPayment(String(this.props.args["amount"]), this.props.args["to"])
+        this.setState(
+          () => ({ transaction: tx }),
+          () => Streamlit.setComponentValue(this.state.transaction)
+        )
     } else if (this.props.args["key"] === "encrypt") {
-      const { encryptedString, encryptedSymmetricKey } = await encrypt(this.props.args["message_to_encrypt"])
-      syncWriteFile('./example.txt', encryptedString);
-      // const sth = await getAuthSig()
-      // console.log("Connected Web3", sth)
-      console.log("encryptedString", encryptedString)
-      console.log("encryptedSymmetricKey", encryptedSymmetricKey)
-      // const decryptedString = await decrypt(encryptedString, encryptedSymmetricKey)
-      // console.log("decryptedString", decryptedString)
-      this.setState(
-        () => ({ encryptedString: encryptedString, encryptedSymmetricKey: encryptedSymmetricKey }),
-        () => Streamlit.setComponentValue({ encryptedString, encryptedSymmetricKey })
-      )
+        const { encryptedString, encryptedSymmetricKey } = await encrypt(this.props.args["message_to_encrypt"])
+        syncWriteFile('./example.txt', encryptedString);
+        // const sth = await getAuthSig()
+        // console.log("Connected Web3", sth)
+        console.log("encryptedString", encryptedString)
+        console.log("encryptedSymmetricKey", encryptedSymmetricKey)
+        // const decryptedString = await decrypt(encryptedString, encryptedSymmetricKey)
+        // console.log("decryptedString", decryptedString)
+        this.setState(
+          () => ({ encryptedString: encryptedString, encryptedSymmetricKey: encryptedSymmetricKey }),
+          () => Streamlit.setComponentValue({ encryptedString, encryptedSymmetricKey })
+        )
     } else if (this.props.args["key"] === "decrypt") {
-        await login()
-      // const { decryptedString } = await decrypt(window.encryptedString, this.state.encryptedSymmetricKey)
-      // this.setState(
-      //   () => ({ decryptedString: decryptedString }),
-      //   () => Streamlit.setComponentValue(decryptedString)
-      // )
-      // console.log("State of encrypted string3:", this.state.encryptedString)
+        const { decryptedString } = await decrypt(window.encryptedString, this.state.encryptedSymmetricKey)
+        this.setState(
+          () => ({ decryptedString: decryptedString }),
+          () => Streamlit.setComponentValue(decryptedString)
+        )
+        console.log("State of encrypted string3:", this.state.encryptedString)
+    } else if (this.props.args["key"] === "login") {
+        const lgn = await login()
+        this.setState(
+          () => ({ loggedIn: lgn }),
+          () => Streamlit.setComponentValue(lgn)
+        )
     }
     // Increment state.numClicks, and pass the new value back to
     // Streamlit via `Streamlit.setComponentValue`.

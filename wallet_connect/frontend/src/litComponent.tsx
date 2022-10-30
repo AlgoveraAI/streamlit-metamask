@@ -828,11 +828,17 @@ async function requestJwt() {
 // }
 
 export async function login(){
-    await getAuthSig();
-    await provisionAccess();
-    await requestJwt();
-    console.log("You're logged in!");
-    console.log("window.jwt", window.jwt);
+    try {
+        await getAuthSig();
+        await provisionAccess();
+        await requestJwt();
+        console.log("You're logged in!");
+        console.log("window.jwt", window.jwt);
+        return true
+    } catch (e) {
+        console.log("Error", e);
+        return false
+    }
     // document.getElementById("authStatus").innerText =
     // "You've been authenticated!";
     // await visitProtectedServer(window.jwt);
