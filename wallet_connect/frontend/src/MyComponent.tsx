@@ -104,9 +104,6 @@ async function sendToken(to_address: string,
 }
 
 
-
-
-
 /**
  * This is a React-based component template. The `render()` function is called
  * automatically when your component should be re-rendered.
@@ -186,7 +183,10 @@ class WalletConnect extends StreamlitComponentBase<State> {
         () => Streamlit.setComponentValue({ encryptedString, encryptedSymmetricKey })
       )
     } else if (this.props.args["key"] === "decrypt") {
-      const { decryptedString } = await decrypt(this.state.encryptedString, this.state.encryptedSymmetricKey)
+      console.log("Checking we still have the encrypted string and key")
+      console.log("encryptedString", this.state.encryptedString)
+      console.log("encryptedSymmetricKey", this.state.encryptedSymmetricKey)
+      const { decryptedString } = await decrypt(this.props.args["encrypted_string"], this.props.args["encrypted_symmetric_key"])
       this.setState(
         () => ({ decryptedString: decryptedString }),
         () => Streamlit.setComponentValue(decryptedString)

@@ -758,5 +758,5 @@ export async function decrypt(encryptedString: string, encryptedSymmetricKey: st
     );
   
     return { decryptedString }
-  }
-  // End Lit Protocol Integration
+}
+// End Lit Protocol Integration
