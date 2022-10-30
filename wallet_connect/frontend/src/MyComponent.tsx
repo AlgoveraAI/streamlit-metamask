@@ -12,6 +12,7 @@ import {
   JsonRpcProvider,
 } from "@ethersproject/providers";
 import { getAddress } from "@ethersproject/address";
+import { verifyMessage } from "@ethersproject/wallet";
 // import { LitConnectModal } from "lit-connect-modal";
 import { SiweMessage } from "lit-siwe";
 
