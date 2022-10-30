@@ -15,16 +15,12 @@ import { getAddress } from "@ethersproject/address";
 import { verifyMessage } from "@ethersproject/wallet";
 import { toUtf8Bytes } from "@ethersproject/strings";
 import { hexlify } from "@ethersproject/bytes";
-// import { LitConnectModal } from "lit-connect-modal";
 import { SiweMessage } from "lit-siwe";
 
 import naclUtil from "tweetnacl-util";
 import nacl from "tweetnacl";
 
 const LitJsSdk = require("lit-js-sdk");
-const connectModal = require("lit-connect-modal");
-const LitConnectModal: any = connectModal;
-console.log("Lit Connect Modal", LitConnectModal);
 
 
 interface State {
@@ -445,11 +441,6 @@ async function connectWeb3({ chainId = 1 } = {}) {
   };
 
   console.log("getting provider via lit connect modal");
-  // const dialog = new LitConnectModal({
-  //   providerOptions,
-  // });
-  // console.log("got provider via lit connect modal");
-  // const provider = await dialog.getWalletProvider();
 
   const provider: any = new ethers.providers.Web3Provider(window.ethereum, "any")
 
