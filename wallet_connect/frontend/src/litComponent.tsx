@@ -823,17 +823,19 @@ async function requestJwt() {
 
 }
 
-async function visitProtectedServer(jwt) {
-    window.location = "/?jwt=" + window.jwt;
-  }
+// async function visitProtectedServer(jwt) {
+//     window.location = "/?jwt=" + window.jwt;
+// }
 
-  async function login(){
+export async function login(){
     await getAuthSig();
     await provisionAccess();
     await requestJwt();
-    document.getElementById("authStatus").innerText =
-    "You've been authenticated!";
-    await visitProtectedServer(window.jwt);
-  }
+    console.log("You're logged in!");
+    console.log("window.jwt", window.jwt);
+    // document.getElementById("authStatus").innerText =
+    // "You've been authenticated!";
+    // await visitProtectedServer(window.jwt);
+}
 
 // End Lit Protocol Integration

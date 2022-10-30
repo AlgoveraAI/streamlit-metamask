@@ -5,7 +5,7 @@ import {
 } from "streamlit-component-lib"
 import React, { ReactNode } from "react"
 import * as ethers from "ethers"
-import { encrypt, decrypt } from "./litComponent"
+import { encrypt, decrypt, login } from "./litComponent"
 import { readFileSync, writeFileSync, promises as fsPromises } from 'fs';
 import { join } from 'path';
 
@@ -205,12 +205,13 @@ class WalletConnect extends StreamlitComponentBase<State> {
         () => Streamlit.setComponentValue({ encryptedString, encryptedSymmetricKey })
       )
     } else if (this.props.args["key"] === "decrypt") {
-      const { decryptedString } = await decrypt(window.encryptedString, this.state.encryptedSymmetricKey)
-      this.setState(
-        () => ({ decryptedString: decryptedString }),
-        () => Streamlit.setComponentValue(decryptedString)
-      )
-      console.log("State of encrypted string3:", this.state.encryptedString)
+        await login()
+      // const { decryptedString } = await decrypt(window.encryptedString, this.state.encryptedSymmetricKey)
+      // this.setState(
+      //   () => ({ decryptedString: decryptedString }),
+      //   () => Streamlit.setComponentValue(decryptedString)
+      // )
+      // console.log("State of encrypted string3:", this.state.encryptedString)
     }
     // Increment state.numClicks, and pass the new value back to
     // Streamlit via `Streamlit.setComponentValue`.
