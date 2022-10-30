@@ -468,165 +468,184 @@ async function connectWeb3({ chainId = 1 } = {}) {
   return { web3, account };
 }
 
-// async function checkAndSignEVMAuthMessage({
-//   chain,
-//   resources,
-//   switchChain,
-// }: any) {
-//   const selectedChain = LIT_CHAINS[chain];
-//   const { web3, account } = await connectWeb3({
-//     chainId: selectedChain.chainId,
-//   });
-//   console.log(`got web3 and account: ${account}`);
+async function checkAndSignEVMAuthMessage({
+  chain,
+  resources,
+  switchChain,
+}: any) {
+  const selectedChain = LIT_CHAINS[chain];
+  const { web3, account } = await connectWeb3({
+    chainId: selectedChain.chainId,
+  });
+  console.log(`got web3 and account: ${account}`);
 
-//   let chainId;
-//   try {
-//     const resp = await web3.getNetwork();
-//     chainId = resp.chainId;
-//   } catch (e) {
-//     // couldn't get chainId.  throw the incorrect network error
-//     console.log("getNetwork threw an exception", e);
-//     throwError({
-//       message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
-//       name: "WrongNetworkException",
-//       errorCode: "wrong_network",
-//     });
-//   }
-//   let selectedChainId = "0x" + selectedChain.chainId.toString("16");
-//   console.log("chainId from web3", chainId);
-//   console.log(
-//     `checkAndSignAuthMessage with chainId ${chainId} and chain set to ${chain} and selectedChain is `,
-//     selectedChain
-//   );
-//   if (chainId !== selectedChain.chainId && switchChain) {
-//     if (web3.provider instanceof WalletConnectProvider) {
-//       // this chain switching won't work.  alert the user that they need to switch chains manually
-//       throwError({
-//         message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
-//         name: "WrongNetworkException",
-//         errorCode: "wrong_network",
-//       });
-//       return;
-//     }
-//     try {
-//       console.log("trying to switch to chainId", selectedChainId);
-//       await web3.provider.request({
-//         method: "wallet_switchEthereumChain",
-//         params: [{ chainId: selectedChainId }],
-//       });
-//     } catch (switchError) {
-//       console.log("error switching to chainId", switchError);
-//       // This error code indicates that the chain has not been added to MetaMask.
-//       if (switchError.code === 4902) {
-//         try {
-//           const data = [
-//             {
-//               chainId: selectedChainId,
-//               chainName: selectedChain.name,
-//               nativeCurrency: {
-//                 name: selectedChain.name,
-//                 symbol: selectedChain.symbol,
-//                 decimals: selectedChain.decimals,
-//               },
-//               rpcUrls: selectedChain.rpcUrls,
-//               blockExplorerUrls: selectedChain.blockExplorerUrls,
-//             },
-//           ];
-//           await web3.provider.request({
-//             method: "wallet_addEthereumChain",
-//             params: data,
-//           });
-//         } catch (addError) {
-//           // handle "add" error
-//           if (addError.code === -32601) {
-//             // metamask code indicating "no such method"
-//             throwError({
-//               message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
-//               name: "WrongNetworkException",
-//               errorCode: "wrong_network",
-//             });
-//           } else {
-//             throw addError;
-//           }
-//         }
-//       } else {
-//         if (switchError.code === -32601) {
-//           // metamask code indicating "no such method"
-//           throwError({
-//             message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
-//             name: "WrongNetworkException",
-//             errorCode: "wrong_network",
-//           });
-//         } else {
-//           throw switchError;
-//         }
-//       }
-//     }
-//     // we may have switched the chain to the selected chain.  set the chainId accordingly
-//     chainId = selectedChain.chainId;
-//   }
-//   console.log("checking if sig is in local storage");
-//   let authSig: any = localStorage.getItem("lit-auth-signature");
-//   if (!authSig) {
-//     console.log("signing auth message because sig is not in local storage");
-//     await signAndSaveAuthMessage({
-//       web3,
-//       account,
-//       chainId,
-//       resources,
-//     });
-//     authSig = localStorage.getItem("lit-auth-signature");
-//   }
-//   authSig = JSON.parse(authSig);
-//   // make sure we are on the right account
-//   if (account !== authSig.address) {
-//     console.log(
-//       "signing auth message because account is not the same as the address in the auth sig"
-//     );
-//     await signAndSaveAuthMessage({
-//       web3,
-//       account,
-//       chainId: selectedChain.chainId,
-//       resources,
-//     });
-//     authSig = localStorage.getItem("lit-auth-signature");
-//     authSig = JSON.parse(authSig);
-//   } else {
-//     // check the resources of the sig and re-sign if they don't match
-//     let mustResign = false;
-//     try {
-//       const parsedSiwe = new SiweMessage(authSig.signedMessage);
-//       console.log("parsedSiwe.resources", parsedSiwe.resources);
+  let chainId;
+  try {
+    const resp = await web3.getNetwork();
+    chainId = resp.chainId;
+  } catch (e) {
+    // couldn't get chainId.  throw the incorrect network error
+    console.log("getNetwork threw an exception", e);
+    throwError({
+      message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
+      name: "WrongNetworkException",
+      errorCode: "wrong_network",
+    });
+  }
+  let selectedChainId = "0x" + selectedChain.chainId.toString("16");
+  console.log("chainId from web3", chainId);
+  console.log(
+    `checkAndSignAuthMessage with chainId ${chainId} and chain set to ${chain} and selectedChain is `,
+    selectedChain
+  );
+  if (chainId !== selectedChain.chainId && switchChain) {
+    if (web3.provider instanceof WalletConnectProvider) {
+      // this chain switching won't work.  alert the user that they need to switch chains manually
+      throwError({
+        message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
+        name: "WrongNetworkException",
+        errorCode: "wrong_network",
+      });
+      return;
+    }
+    try {
+      console.log("trying to switch to chainId", selectedChainId);
+      await web3.provider.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: selectedChainId }],
+      });
+    } catch (switchError) {
+      console.log("error switching to chainId", switchError);
+      // This error code indicates that the chain has not been added to MetaMask.
+      if (switchError.code === 4902) {
+        try {
+          const data = [
+            {
+              chainId: selectedChainId,
+              chainName: selectedChain.name,
+              nativeCurrency: {
+                name: selectedChain.name,
+                symbol: selectedChain.symbol,
+                decimals: selectedChain.decimals,
+              },
+              rpcUrls: selectedChain.rpcUrls,
+              blockExplorerUrls: selectedChain.blockExplorerUrls,
+            },
+          ];
+          await web3.provider.request({
+            method: "wallet_addEthereumChain",
+            params: data,
+          });
+        } catch (addError) {
+          // handle "add" error
+          if (addError.code === -32601) {
+            // metamask code indicating "no such method"
+            throwError({
+              message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
+              name: "WrongNetworkException",
+              errorCode: "wrong_network",
+            });
+          } else {
+            throw addError;
+          }
+        }
+      } else {
+        if (switchError.code === -32601) {
+          // metamask code indicating "no such method"
+          throwError({
+            message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
+            name: "WrongNetworkException",
+            errorCode: "wrong_network",
+          });
+        } else {
+          throw switchError;
+        }
+      }
+    }
+    // we may have switched the chain to the selected chain.  set the chainId accordingly
+    chainId = selectedChain.chainId;
+  }
+  console.log("checking if sig is in local storage");
+  let authSig: any = localStorage.getItem("lit-auth-signature");
+  if (!authSig) {
+    console.log("signing auth message because sig is not in local storage");
+    await signAndSaveAuthMessage({
+      web3,
+      account,
+      chainId,
+      resources,
+    });
+    authSig = localStorage.getItem("lit-auth-signature");
+  }
+  authSig = JSON.parse(authSig);
+  // make sure we are on the right account
+  if (account !== authSig.address) {
+    console.log(
+      "signing auth message because account is not the same as the address in the auth sig"
+    );
+    await signAndSaveAuthMessage({
+      web3,
+      account,
+      chainId: selectedChain.chainId,
+      resources,
+    });
+    authSig = localStorage.getItem("lit-auth-signature");
+    authSig = JSON.parse(authSig);
+  } else {
+    // check the resources of the sig and re-sign if they don't match
+    let mustResign = false;
+    try {
+      const parsedSiwe = new SiweMessage(authSig.signedMessage);
+      console.log("parsedSiwe.resources", parsedSiwe.resources);
 
-//       if (JSON.stringify(parsedSiwe.resources) !== JSON.stringify(resources)) {
-//         console.log(
-//           "signing auth message because resources differ from the resources in the auth sig"
-//         );
-//         mustResign = true;
-//       } else if (parsedSiwe.address !== getAddress(parsedSiwe.address)) {
-//         console.log(
-//           "signing auth message because parsedSig.address is not equal to the same address but checksummed.  This usually means the user had a non-checksummed address saved and so they need to re-sign."
-//         );
-//         mustResign = true;
-//       }
-//     } catch (e) {
-//       console.log("error parsing siwe sig.  making the user sign again: ", e);
-//       mustResign = true;
-//     }
-//     if (mustResign) {
-//       await signAndSaveAuthMessage({
-//         web3,
-//         account,
-//         chainId: selectedChain.chainId,
-//         resources,
-//       });
-//       authSig = localStorage.getItem("lit-auth-signature");
-//       authSig = JSON.parse(authSig);
-//     }
-//   }
-//   console.log("got auth sig", authSig);
-//   return authSig;
-// }
+      if (JSON.stringify(parsedSiwe.resources) !== JSON.stringify(resources)) {
+        console.log(
+          "signing auth message because resources differ from the resources in the auth sig"
+        );
+        mustResign = true;
+      } else if (parsedSiwe.address !== getAddress(parsedSiwe.address)) {
+        console.log(
+          "signing auth message because parsedSig.address is not equal to the same address but checksummed.  This usually means the user had a non-checksummed address saved and so they need to re-sign."
+        );
+        mustResign = true;
+      }
+    } catch (e) {
+      console.log("error parsing siwe sig.  making the user sign again: ", e);
+      mustResign = true;
+    }
+    if (mustResign) {
+      await signAndSaveAuthMessage({
+        web3,
+        account,
+        chainId: selectedChain.chainId,
+        resources,
+      });
+      authSig = localStorage.getItem("lit-auth-signature");
+      authSig = JSON.parse(authSig);
+    }
+  }
+  console.log("got auth sig", authSig);
+  return authSig;
+}
+
+async function checkAndSignAuthMessage({
+  chain,
+  resources,
+  switchChain = true,
+}: any) {
+  const chainInfo = ALL_LIT_CHAINS[chain];
+  if (!chainInfo) {
+    throwError({
+      message: `Unsupported chain selected.  Please select one of: ${Object.keys(
+        ALL_LIT_CHAINS
+      )}`,
+      name: "UnsupportedChainException",
+      errorCode: "unsupported_chain",
+    });
+  }
+
+  return checkAndSignEVMAuthMessage({ chain, resources, switchChain });
+}
 
 
 
@@ -639,7 +658,7 @@ async function connectWeb3({ chainId = 1 } = {}) {
 
 // Set up the middleware stack
 async function getAuthSig() {
-  const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'polygon'});
+  const authSig = await checkAndSignAuthMessage({chain: 'polygon'});
   window.authSig = authSig;
   return authSig
 }
