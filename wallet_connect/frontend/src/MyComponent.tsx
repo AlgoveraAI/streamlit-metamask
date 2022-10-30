@@ -600,7 +600,6 @@ async function signAndSaveAuthMessage({
   return authSig;
 }
 
-
 async function checkAndSignEVMAuthMessage({
   chain,
   resources,
@@ -619,11 +618,11 @@ async function checkAndSignEVMAuthMessage({
   } catch (e) {
     // couldn't get chainId.  throw the incorrect network error
     console.log("getNetwork threw an exception", e);
-    throwError({
-      message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
-      name: "WrongNetworkException",
-      errorCode: "wrong_network",
-    });
+    // throwError({
+    //   message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
+    //   name: "WrongNetworkException",
+    //   errorCode: "wrong_network",
+    // });
   }
   let selectedChainId = "0x" + selectedChain.chainId.toString("16");
   console.log("chainId from web3", chainId);
@@ -634,11 +633,11 @@ async function checkAndSignEVMAuthMessage({
   if (chainId !== selectedChain.chainId && switchChain) {
     if (web3.provider instanceof WalletConnectProvider) {
       // this chain switching won't work.  alert the user that they need to switch chains manually
-      throwError({
-        message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
-        name: "WrongNetworkException",
-        errorCode: "wrong_network",
-      });
+      // throwError({
+      //   message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
+      //   name: "WrongNetworkException",
+      //   errorCode: "wrong_network",
+      // });
       return;
     }
     try {
@@ -647,7 +646,7 @@ async function checkAndSignEVMAuthMessage({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: selectedChainId }],
       });
-    } catch (switchError) {
+    } catch (switchError: any) {
       console.log("error switching to chainId", switchError);
       // This error code indicates that the chain has not been added to MetaMask.
       if (switchError.code === 4902) {
@@ -669,15 +668,15 @@ async function checkAndSignEVMAuthMessage({
             method: "wallet_addEthereumChain",
             params: data,
           });
-        } catch (addError) {
+        } catch (addError: any) {
           // handle "add" error
           if (addError.code === -32601) {
             // metamask code indicating "no such method"
-            throwError({
-              message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
-              name: "WrongNetworkException",
-              errorCode: "wrong_network",
-            });
+            // throwError({
+            //   message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
+            //   name: "WrongNetworkException",
+            //   errorCode: "wrong_network",
+            // });
           } else {
             throw addError;
           }
@@ -685,11 +684,11 @@ async function checkAndSignEVMAuthMessage({
       } else {
         if (switchError.code === -32601) {
           // metamask code indicating "no such method"
-          throwError({
-            message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
-            name: "WrongNetworkException",
-            errorCode: "wrong_network",
-          });
+          // throwError({
+          //   message: `Incorrect network selected.  Please switch to the ${chain} network in your wallet and try again.`,
+          //   name: "WrongNetworkException",
+          //   errorCode: "wrong_network",
+          // });
         } else {
           throw switchError;
         }
