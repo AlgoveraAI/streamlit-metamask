@@ -5,7 +5,7 @@ import {
 } from "streamlit-component-lib"
 import React, { ReactNode } from "react"
 import * as ethers from "ethers"
-import { encrypt, decrypt, login } from "./litComponent"
+import { encrypt, decrypt, login, mintAndLogin } from "./litComponent"
 import { readFileSync, writeFileSync, promises as fsPromises } from 'fs';
 import { join } from 'path';
 
@@ -29,6 +29,9 @@ declare global {
     encryptedString: any,
     jwt: any,
     location: Location,
+    chain: any,
+    tokenId: any,
+    tokenAddress: any,
   }
 }
 interface Document {
@@ -129,7 +132,15 @@ function syncWriteFile(filename: string, data: any) {
  * automatically when your component should be re-rendered.
  */
 class WalletConnect extends StreamlitComponentBase<State> {
-  public state = { walletAddress: "not", transaction: "", isFocused: false, encryptedString: "", encryptedSymmetricKey: "", decryptedString: "", loggedIn: false };
+  public state = { 
+    walletAddress: "not", 
+    transaction: "", 
+    isFocused: false, 
+    encryptedString: "", 
+    encryptedSymmetricKey: "", 
+    decryptedString: "", 
+    loggedIn: false, 
+  };
 
   public render = (): ReactNode => {
     // Arguments that are passed to the plugin in Python are accessible
@@ -218,7 +229,13 @@ class WalletConnect extends StreamlitComponentBase<State> {
           () => ({ loggedIn: lgn }),
           () => Streamlit.setComponentValue(lgn)
         )
-    }
+    } else if (this.props.args["key"] === "mint_and_login") {
+      const lgn = await mintAndLogin()
+      this.setState(
+        () => ({ loggedIn: lgn }),
+        () => Streamlit.setComponentValue(lgn)
+      )
+  }
     // Increment state.numClicks, and pass the new value back to
     // Streamlit via `Streamlit.setComponentValue`.
   }

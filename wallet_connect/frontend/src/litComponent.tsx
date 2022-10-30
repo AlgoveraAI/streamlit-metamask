@@ -4,15 +4,18 @@ import {
   JsonRpcSigner,
   JsonRpcProvider,
 } from "@ethersproject/providers";
-import { getAddress } from "@ethersproject/address";
 import { verifyMessage } from "@ethersproject/wallet";
 import { toUtf8Bytes } from "@ethersproject/strings";
+import { getAddress } from "@ethersproject/address";
+import { Contract } from "@ethersproject/contracts";
 import { hexlify } from "@ethersproject/bytes";
 import { SiweMessage } from "lit-siwe";
 
 import naclUtil from "tweetnacl-util";
 import nacl from "tweetnacl";
 import { ethers } from "ethers";
+
+import LIT from "lit-js-sdk/src/abis/LIT.json";
 
 const LitJsSdk = require("lit-js-sdk");
 
@@ -827,6 +830,49 @@ async function requestJwt() {
 //     window.location = "/?jwt=" + window.jwt;
 // }
 
+/**
+ * This function mints a LIT using our pre-deployed token contracts.  You may use our contracts, or you may supply your own.  Our contracts are ERC1155 tokens on Polygon and Ethereum.  Using these contracts is the easiest way to get started.
+ * @param {Object} params
+ * @param {string} params.chain The chain to mint on.  "ethereum" and "polygon" are currently supported.
+ * @param {number} params.quantity The number of tokens to mint.  Note that these will be fungible, so they will not have serial numbers.
+ * @returns {Object} The txHash, tokenId, tokenAddress, mintingAddress, and authSig.
+ */
+async function mintLIT({ chain, quantity }: any) {
+    console.log(`minting ${quantity} tokens on ${chain}`);
+    try {
+      const authSig = await checkAndSignEVMAuthMessage({
+        chain,
+        switchChain: true,
+      });
+      if (authSig.errorCode) {
+        return authSig;
+      }
+      const { web3, account } = await connectWeb3();
+      const tokenAddress = LIT_CHAINS[chain].contractAddress;
+      if (!tokenAddress) {
+        console.log("No token address for this chain.  It's not supported via MintLIT.");
+        return;
+      }
+      const contract = new Contract(tokenAddress, LIT.abi, web3.getSigner());
+      console.log("sending to chain...");
+      const tx = await contract.mint(quantity);
+      console.log("sent to chain.  waiting to be mined...");
+      const txReceipt = await tx.wait();
+      console.log("txReceipt: ", txReceipt);
+      const tokenId = txReceipt.events[0].args[3].toNumber();
+      return {
+        txHash: txReceipt.transactionHash,
+        tokenId,
+        tokenAddress,
+        mintingAddress: account,
+        authSig,
+      };
+    } catch (error) {
+      console.log(error);
+      return { errorCode: "unknown_error" };
+    }
+  }
+
 async function mintNft() {
     console.log("Minting NFT, please wait for the tx to confirm...")
 
@@ -838,7 +884,7 @@ async function mintNft() {
       tokenAddress,
       mintingAddress,
       authSig
-    } = await LitJsSdk.mintLIT({ chain: window.chain, quantity: 1 })
+    } = await mintLIT({ chain: window.chain, quantity: 1 })
     window.tokenId = tokenId
     window.tokenAddress = tokenAddress
     window.authSig = authSig
@@ -865,6 +911,7 @@ export async function login() {
 
 export async function mintAndLogin() {
     try {
+        await getAuthSig();
         const tx = await mintNft()
         console.log("tx", tx)
         await provisionAccess(LitJsSdk.LIT_CHAINS[window.chain].contractAddress);

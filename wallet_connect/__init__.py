@@ -28,7 +28,8 @@ encrypted_symmetric_key = st.text_input("Enter symmetric key")
 decrypt_button = wallet_connect(label="decrypt", key="decrypt", message="Decrypt", encrypted_string=encrypted_string, encrypted_symmetric_key=encrypted_symmetric_key)
 
 login_button = wallet_connect(label="login", key="login", message="Login")
-if login_button == True:
+mint_button = wallet_connect(label="mint", key="mint_and_login", message="Mint and Login")
+if login_button == True or mint_button == True:
     st.write("Logged in!")
 else:
     st.write("Not authorized to access this application.")
