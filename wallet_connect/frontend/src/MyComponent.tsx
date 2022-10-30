@@ -18,6 +18,9 @@ import { hexlify } from "@ethersproject/bytes";
 // import { LitConnectModal } from "lit-connect-modal";
 import { SiweMessage } from "lit-siwe";
 
+import naclUtil from "tweetnacl-util";
+import nacl from "tweetnacl";
+
 const LitJsSdk = require("lit-js-sdk");
 const connectModal = require("lit-connect-modal");
 const LitConnectModal: any = connectModal;
@@ -475,7 +478,7 @@ async function connectWeb3({ chainId = 1 } = {}) {
 
 // wrapper around signMessage that tries personal_sign first.  this is to fix a
 // bug with walletconnect where just using signMessage was failing
-export const signMessageAsync = async (signer: any, address: any, message: any) => {
+const signMessageAsync = async (signer: any, address: any, message: any) => {
   const messageBytes = toUtf8Bytes(message);
   if (signer instanceof JsonRpcSigner) {
     try {
@@ -485,7 +488,7 @@ export const signMessageAsync = async (signer: any, address: any, message: any) 
         address.toLowerCase(),
       ]);
       return signature;
-    } catch (e) {
+    } catch (e: any) {
       console.log(
         "Signing with personal_sign failed, trying signMessage as a fallback"
       );
@@ -545,8 +548,8 @@ export const signMessageAsync = async (signer: any, address: any, message: any) 
  * @param {Web3Provider} params.web3 An ethers.js Web3Provider instance
  * @param {string} params.account The account to sign the message with
  * @returns {AuthSig} The AuthSig created or retrieved
- */
- export async function signAndSaveAuthMessage({
+*/
+async function signAndSaveAuthMessage({
   web3,
   account,
   chainId,
@@ -593,7 +596,7 @@ export const signMessageAsync = async (signer: any, address: any, message: any) 
       secretKey: naclUtil.encodeBase64(commsKeyPair.secretKey),
     })
   );
-  log("generated and saved lit-comms-keypair");
+  console.log("generated and saved lit-comms-keypair");
   return authSig;
 }
 
