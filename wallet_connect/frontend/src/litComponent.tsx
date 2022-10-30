@@ -684,7 +684,7 @@ const LIT_CHAINS: any = {
   }
   
   
-export async function encrypt() {
+export async function encrypt(messageToEncrypt: string) {
     const litNodeClient = await getClient();
     window.accessControlConditions = [
       {
@@ -707,7 +707,7 @@ export async function encrypt() {
   
     // encrypting content -> this we can change to our own content
     const { encryptedString, symmetricKey } = await LitJsSdk.encryptString(
-      "this is a secret message"
+        messageToEncrypt
     );
     // saving encrypted content to Lit Node
     const encryptedSymmetricKey = await window.litNodeClient.saveEncryptionKey({
@@ -716,15 +716,18 @@ export async function encrypt() {
       authSig,
       chain,
     });
+
+    window.encryptedString = encryptedString;
   
     return {
       encryptedString,
       encryptedSymmetricKey: LitJsSdk.uint8arrayToString(encryptedSymmetricKey, "base16")
     }
-  }
+}
   
   
 export async function decrypt(encryptedString: string, encryptedSymmetricKey: string) {
+    console.log("encrytpeString", encryptedString);
     const litNodeClient = await getClient();
   
     const authSig = await getAuthSig();
@@ -759,4 +762,78 @@ export async function decrypt(encryptedString: string, encryptedSymmetricKey: st
   
     return { decryptedString }
 }
+
+async function provisionAccess() {
+    window.accessControlConditions = [
+      {
+        contractAddress: '0x68085453B798adf9C09AD8861e0F0da96B908d81',
+        standardContractType: "ERC1155",
+        chain: "polygon",
+        method: "balanceOf",
+        parameters: [":userAddress", '0', '1', '2', '3', '4', '5' ],
+        returnValueTest: {
+          comparator: ">",
+          value: "0",
+        },
+      },
+    ];
+    // generate a random path because you can only provision access to a given path once
+    const randomUrlPath =
+      "/" +
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15);
+    window.resourceId = {
+      baseUrl: "lit-estuary-storage.herokuapp.com/",
+      path: randomUrlPath, // this would normally be our url path, like "/algovera.storage" for example
+      orgId: "",
+      role: "",
+      extraData: "",
+    };
+
+    const client = new LitJsSdk.LitNodeClient();
+    await client.connect();
+    window.litNodeClient = client;
+    console.log("Lit client connected", client);
+    console.log("Window.litNodeClient", window.litNodeClient);
+
+
+    await client.saveSigningCondition({
+      accessControlConditions: window.accessControlConditions,
+      chain: 'polygon',
+      authSig: window.authSig,
+      resourceId: window.resourceId,
+    });
+}
+
+async function requestJwt() {
+
+    const client = new LitJsSdk.LitNodeClient();
+    await client.connect();
+    window.litNodeClient = client;
+    console.log("Lit client connected", client);
+    console.log("Window.litNodeClient", window.litNodeClient);
+
+
+    window.jwt = await client.getSignedToken({
+      accessControlConditions: window.accessControlConditions,
+      chain: 'polygon',
+      authSig: window.authSig,
+      resourceId: window.resourceId,
+    });
+
+}
+
+async function visitProtectedServer(jwt) {
+    window.location = "/?jwt=" + window.jwt;
+  }
+
+  async function login(){
+    await getAuthSig();
+    await provisionAccess();
+    await requestJwt();
+    document.getElementById("authStatus").innerText =
+    "You've been authenticated!";
+    await visitProtectedServer(window.jwt);
+  }
+
 // End Lit Protocol Integration
