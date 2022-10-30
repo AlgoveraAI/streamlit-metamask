@@ -16,6 +16,7 @@ import {
 const LitJsSdk = require("lit-js-sdk");
 const connectModal = require("lit-connect-modal");
 const LitConnectModal: any = connectModal;
+console.log("Lit Connect Modal", LitConnectModal);
 
 
 interface State {
@@ -375,6 +376,38 @@ const LIT_CHAINS: any = {
 };
 
 // Helper functions
+
+async function getLitClient() {
+  console.log("Lit!")
+  const client = new LitJsSdk.LitNodeClient();
+  await client.connect();
+  window.litNodeClient = client;
+  console.log("Lit client connected", client);
+  console.log("Window.litNodeClient", window.litNodeClient);
+
+  const chain = "ethereum";
+  console.log("Chain", chain);
+
+  const accessControlConditions = [
+    {
+      contractAddress: "",
+      standardContractType: "",
+      chain: chain,
+      method: "eth_getBalance",
+      parameters: [":userAddress", "latest"],
+      returnValueTest: {
+        comparator: ">=",
+        value: "1000000000000", // 0.000001 ETH
+      },
+    },
+  ];
+
+  const authSig = await LitJsSdk.checkAndSignAuthMessage({ chain: chain });
+  console.log("AuthSig", authSig)
+}
+
+
+
 async function connectWeb3({ chainId = 1 } = {}) {
   const rpcUrls: any = {};
   // need to make it look like this:
@@ -404,22 +437,24 @@ async function connectWeb3({ chainId = 1 } = {}) {
   };
 
   console.log("getting provider via lit connect modal");
-  console.log("LitConnectModal", LitConnectModal);
-  const dialog = new LitConnectModal({
-    providerOptions,
-  });
-  console.log("got provider via lit connect modal");
-  const provider = await dialog.getWalletProvider();
-  // const provider: any = new ethers.providers.Web3Provider(window.ethereum, "any")
+  // const dialog = new LitConnectModal({
+  //   providerOptions,
+  // });
+  // console.log("got provider via lit connect modal");
+  // const provider = await dialog.getWalletProvider();
+
+  const provider: any = new ethers.providers.Web3Provider(window.ethereum, "any")
 
   console.log("got provider", provider);
-  const web3 = new Web3Provider(provider);
+  // const web3 = new Web3Provider(provider);
+  const web3 = provider;
 
   // const provider = await detectEthereumProvider();
   // const web3 = new Web3Provider(provider);
 
   // trigger metamask popup
-  await provider.enable();
+  // await provider.enable();
+  await provider.send("eth_requestAccounts", []);
 
   console.log("listing accounts");
   const accounts = await web3.listAccounts();
