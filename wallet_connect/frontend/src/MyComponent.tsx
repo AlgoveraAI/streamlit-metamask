@@ -468,6 +468,65 @@ async function connectWeb3({ chainId = 1 } = {}) {
   return { web3, account };
 }
 
+/**
+ * Sign the auth message with the user's wallet, and store it in localStorage.  Called by checkAndSignAuthMessage if the user does not have a signature stored.
+ * @param {Object} params
+ * @param {Web3Provider} params.web3 An ethers.js Web3Provider instance
+ * @param {string} params.account The account to sign the message with
+ * @returns {AuthSig} The AuthSig created or retrieved
+ */
+ export async function signAndSaveAuthMessage({
+  web3,
+  account,
+  chainId,
+  resources,
+}: any) {
+  // const { chainId } = await web3.getNetwork();
+
+  const preparedMessage = {
+    domain: globalThis.location.host,
+    address: getAddress(account), // convert to EIP-55 format or else SIWE complains
+    uri: globalThis.location.origin,
+    version: "1",
+    chainId,
+  };
+
+  if (resources && resources.length > 0) {
+    preparedMessage.resources = resources;
+  }
+
+  const message = new SiweMessage(preparedMessage);
+
+  const body = message.prepareMessage();
+
+  const signedResult = await signMessage({
+    body,
+    web3,
+    account,
+  });
+
+  const authSig = {
+    sig: signedResult.signature,
+    derivedVia: "web3.eth.personal.sign",
+    signedMessage: body,
+    address: signedResult.address,
+  };
+
+  localStorage.setItem("lit-auth-signature", JSON.stringify(authSig));
+  // store a keypair in localstorage for communication with sgx
+  const commsKeyPair = nacl.box.keyPair();
+  localStorage.setItem(
+    "lit-comms-keypair",
+    JSON.stringify({
+      publicKey: naclUtil.encodeBase64(commsKeyPair.publicKey),
+      secretKey: naclUtil.encodeBase64(commsKeyPair.secretKey),
+    })
+  );
+  log("generated and saved lit-comms-keypair");
+  return authSig;
+}
+
+
 async function checkAndSignEVMAuthMessage({
   chain,
   resources,
