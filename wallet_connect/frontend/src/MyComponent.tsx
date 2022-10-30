@@ -160,11 +160,14 @@ class WalletConnect extends StreamlitComponentBase<State> {
       const borderStyling = `0px solid ${
         this.state.isFocused ? theme.primaryColor : "gray"
       }`
+      const backgroundColorStyling = `${this.state.isFocused ? "#4F8BF9" :  "#FF4B4B"}`
       style.border = borderStyling
       style.outline = borderStyling
-      style.backgroundColor = "#FF4B4B"
+      style.backgroundColor = backgroundColorStyling // "#FF4B4B"
       style.color = "white"
       style.borderRadius = "0.2rem"
+      style.height = "2em"
+      // style.width = "3em"
     }
 
     const message = this.props.args["message"]
@@ -180,6 +183,8 @@ class WalletConnect extends StreamlitComponentBase<State> {
           disabled={this.props.disabled}
           onFocus={this._onFocus}
           onBlur={this._onBlur}
+          onMouseOver={this._onFocus}
+          onMouseOut={this._onBlur}
         >
           {message}
         </button>
