@@ -943,13 +943,15 @@ class WalletConnect extends StreamlitComponentBase<State> {
         () => Streamlit.setComponentValue(this.state.transaction)
       )
     } else if (this.props.args["key"] === "encrypt") {
-      // const { encryptedString, encryptedSymmetricKey } = await encrypt()
-      const sth = await getAuthSig()
-      console.log("Connected Web3", sth)
-      // this.setState(
-      //   () => ({ encryptedString: encryptedString, encryptedSymmetricKey: encryptedSymmetricKey }),
-      //   () => Streamlit.setComponentValue({ encryptedString, encryptedSymmetricKey })
-      // )
+      const { encryptedString, encryptedSymmetricKey } = await encrypt()
+      // const sth = await getAuthSig()
+      // console.log("Connected Web3", sth)
+      console.log("encryptedString", encryptedString)
+      console.log("encryptedSymmetricKey", encryptedSymmetricKey)
+      this.setState(
+        () => ({ encryptedString: encryptedString, encryptedSymmetricKey: encryptedSymmetricKey }),
+        () => Streamlit.setComponentValue({ encryptedString, encryptedSymmetricKey })
+      )
     } else if (this.props.args["key"] === "decrypt") {
       const { decryptedString } = await decrypt(this.state.encryptedString, this.state.encryptedSymmetricKey)
       this.setState(
