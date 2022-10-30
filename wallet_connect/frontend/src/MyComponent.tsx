@@ -508,23 +508,23 @@ export const signMessageAsync = async (signer: any, address: any, message: any) 
  * @property {string} address - The crypto wallet address that signed the message
  */
 
- export async function signMessage({ body, web3, account }) {
+ export async function signMessage({ body, web3, account }: any) {
   if (!web3 || !account) {
     let resp = await connectWeb3();
     web3 = resp.web3;
     account = resp.account;
   }
 
-  log("pausing...");
+  console.log("pausing...");
   await new Promise((resolve) => setTimeout(resolve, 500));
-  log("signing with ", account);
+  console.log("signing with ", account);
   // const signature = await web3.getSigner().signMessage(body);
   const signature = await signMessageAsync(web3.getSigner(), account, body);
   //.request({ method: 'personal_sign', params: [account, body] })
   const address = verifyMessage(body, signature).toLowerCase();
 
-  log("Signature: ", signature);
-  log("recovered address: ", address);
+  console.log("Signature: ", signature);
+  console.log("recovered address: ", address);
 
   if (address !== account) {
     const msg = `ruh roh, the user signed with a different address (${address}) then they\'re using with web3 (${account}).  this will lead to confusion.`;
