@@ -689,7 +689,7 @@ const LIT_CHAINS: any = {
   
 export async function encrypt(messageToEncrypt: string) {
     const litNodeClient = await getClient();
-    window.accessControlConditions = [
+    const accessControlConditions = [
       {
         contractAddress: '0x68085453B798adf9C09AD8861e0F0da96B908d81',
         standardContractType: "ERC1155",
@@ -705,7 +705,6 @@ export async function encrypt(messageToEncrypt: string) {
     console.log("getting authSig");
     const authSig = await getAuthSig();
     console.log("got authSig ", authSig);
-    const accessControlConditions = window.accessControlConditions;
     const chain = "polygon";
   
     // encrypting content -> this we can change to our own content
@@ -721,15 +720,20 @@ export async function encrypt(messageToEncrypt: string) {
     });
 
     window.encryptedString = encryptedString;
+    const encryptedRealString = await LitJsSdk.blobToBase64String(encryptedString)
+
   
     return {
-      encryptedString,
+      encryptedRealString,
       encryptedSymmetricKey: LitJsSdk.uint8arrayToString(encryptedSymmetricKey, "base16")
     }
 }
   
   
-export async function decrypt(encryptedString: string, encryptedSymmetricKey: string) {
+export async function decrypt(encryptedRealString: string, encryptedSymmetricKey: string) {
+    console.log("encryptedRealString", encryptedRealString);
+    console.log("encryptedSymmetricKey", encryptedSymmetricKey);
+    const encryptedString = LitJsSdk.base64StringToBlob(encryptedRealString)
     console.log("encrytpeString", encryptedString);
     const litNodeClient = await getClient();
   

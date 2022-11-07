@@ -26,6 +26,7 @@ encrypted_string = st.text_input("Enter string to decrypt")
 encrypted_symmetric_key = st.text_input("Enter symmetric key")
 
 decrypt_button = wallet_connect(label="decrypt", key="decrypt", message="Decrypt", encrypted_string=encrypted_string, encrypted_symmetric_key=encrypted_symmetric_key)
+st.write(decrypt_button)
 
 login_button = wallet_connect(label="login", key="login", message="Login")
 mint_button = wallet_connect(label="mint", key="mint_and_login", message="Mint and Login")

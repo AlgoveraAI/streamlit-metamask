@@ -109,21 +109,21 @@ async function sendToken(to_address: string,
   console.log(to_address);
 }
 
-function syncWriteFile(filename: string, data: any) {
-  /**
-   * flags:
-   *  - w = Open file for reading and writing. File is created if not exists
-   *  - a+ = Open file for reading and appending. The file is created if not exists
-   */
-  writeFileSync(join(__dirname, filename), data, {
-    flag: 'w',
-  });
+// function syncWriteFile(filename: string, data: any) {
+//   /**
+//    * flags:
+//    *  - w = Open file for reading and writing. File is created if not exists
+//    *  - a+ = Open file for reading and appending. The file is created if not exists
+//    */
+//   writeFileSync(join(__dirname, filename), data, {
+//     flag: 'w',
+//   });
 
-  const contents = readFileSync(join(__dirname, filename), 'utf-8');
-  console.log(contents); // 👉️ "One Two Three Four"
+//   const contents = readFileSync(join(__dirname, filename), 'utf-8');
+//   console.log(contents); // 👉️ "One Two Three Four"
 
-  return contents;
-}
+//   return contents;
+// }
 
 
 
@@ -160,7 +160,7 @@ class WalletConnect extends StreamlitComponentBase<State> {
       const borderStyling = `0px solid ${
         this.state.isFocused ? theme.primaryColor : "gray"
       }`
-      const backgroundColorStyling = `${this.state.isFocused ? "#4F8BF9" :  "#FF4B4B"}`
+      const backgroundColorStyling = `${this.state.isFocused ? "#4F8BF9" :  "#FF4B4B"}` // 
       style.border = borderStyling
       style.outline = borderStyling
       style.backgroundColor = backgroundColorStyling // "#FF4B4B"
@@ -209,20 +209,20 @@ class WalletConnect extends StreamlitComponentBase<State> {
           () => Streamlit.setComponentValue(this.state.transaction)
         )
     } else if (this.props.args["key"] === "encrypt") {
-        const { encryptedString, encryptedSymmetricKey } = await encrypt(this.props.args["message_to_encrypt"])
-        syncWriteFile('./example.txt', encryptedString);
+        const { encryptedRealString, encryptedSymmetricKey } = await encrypt(this.props.args["message_to_encrypt"])
+        // syncWriteFile('./example.txt', encryptedRealString);
         // const sth = await getAuthSig()
         // console.log("Connected Web3", sth)
-        console.log("encryptedString", encryptedString)
+        console.log("encryptedString", encryptedRealString)
         console.log("encryptedSymmetricKey", encryptedSymmetricKey)
-        // const decryptedString = await decrypt(encryptedString, encryptedSymmetricKey)
+        const decryptedString = await decrypt(encryptedRealString, encryptedSymmetricKey)
         // console.log("decryptedString", decryptedString)
         this.setState(
-          () => ({ encryptedString: encryptedString, encryptedSymmetricKey: encryptedSymmetricKey }),
-          () => Streamlit.setComponentValue({ encryptedString, encryptedSymmetricKey })
+          () => ({ encryptedString: encryptedRealString, encryptedSymmetricKey: encryptedSymmetricKey }),
+          () => Streamlit.setComponentValue({ encryptedRealString, encryptedSymmetricKey })
         )
     } else if (this.props.args["key"] === "decrypt") {
-        const { decryptedString } = await decrypt(window.encryptedString, this.state.encryptedSymmetricKey)
+        const { decryptedString } = await decrypt(this.props.args["encrypted_string"], this.props.args["encrypted_symmetric_key"])
         this.setState(
           () => ({ decryptedString: decryptedString }),
           () => Streamlit.setComponentValue(decryptedString)
