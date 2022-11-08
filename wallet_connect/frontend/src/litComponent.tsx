@@ -937,10 +937,10 @@ async function mintNft() {
     return txHash
 }
 
-export async function login() {
+export async function login(contractAddress: string) {
     try {
         await getAuthSig();
-        await provisionAccess('0x68085453B798adf9C09AD8861e0F0da96B908d81');
+        await provisionAccess(contractAddress);
         await requestJwt();
         console.log("You're logged in!");
         console.log("window.jwt", window.jwt);
