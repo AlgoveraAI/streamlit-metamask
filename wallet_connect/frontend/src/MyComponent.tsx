@@ -5,17 +5,37 @@ import {
 } from "streamlit-component-lib"
 import React, { ReactNode } from "react"
 import * as ethers from "ethers"
+import { encrypt, decrypt, login, mintAndLogin } from "./litComponent"
+import { readFileSync, writeFileSync, promises as fsPromises } from 'fs';
+import { join } from 'path';
 
 interface State {
   walletAddress: string
   transaction: string
   isFocused: boolean
+  encryptedString: string
+  encryptedSymmetricKey: string
+  decryptedString: string
+  loggedIn: boolean
 }
 
 declare global {
   interface Window {
-    ethereum: any
+    ethereum: any,
+    authSig: any,
+    resourceId: any,
+    accessControlConditions: any,
+    litNodeClient: any,
+    encryptedString: any,
+    jwt: any,
+    location: Location,
+    chain: any,
+    tokenId: any,
+    tokenAddress: any,
   }
+}
+interface Document {
+  authStatus: any,
 }
 
 
@@ -89,13 +109,38 @@ async function sendToken(to_address: string,
   console.log(to_address);
 }
 
+// function syncWriteFile(filename: string, data: any) {
+//   /**
+//    * flags:
+//    *  - w = Open file for reading and writing. File is created if not exists
+//    *  - a+ = Open file for reading and appending. The file is created if not exists
+//    */
+//   writeFileSync(join(__dirname, filename), data, {
+//     flag: 'w',
+//   });
+
+//   const contents = readFileSync(join(__dirname, filename), 'utf-8');
+//   console.log(contents); // 👉️ "One Two Three Four"
+
+//   return contents;
+// }
+
+
 
 /**
  * This is a React-based component template. The `render()` function is called
  * automatically when your component should be re-rendered.
  */
 class WalletConnect extends StreamlitComponentBase<State> {
-  public state = { walletAddress: "not", transaction: "", isFocused: false }
+  public state = { 
+    walletAddress: "not", 
+    transaction: "", 
+    isFocused: false, 
+    encryptedString: "", 
+    encryptedSymmetricKey: "", 
+    decryptedString: "", 
+    loggedIn: false, 
+  };
 
   public render = (): ReactNode => {
     // Arguments that are passed to the plugin in Python are accessible
@@ -115,11 +160,14 @@ class WalletConnect extends StreamlitComponentBase<State> {
       const borderStyling = `0px solid ${
         this.state.isFocused ? theme.primaryColor : "gray"
       }`
+      const backgroundColorStyling = `${this.state.isFocused ? "#4F8BF9" :  "#FF4B4B"}` // 
       style.border = borderStyling
       style.outline = borderStyling
-      style.backgroundColor = "#FF4B4B"
+      style.backgroundColor = backgroundColorStyling // "#FF4B4B"
       style.color = "white"
       style.borderRadius = "0.2rem"
+      style.height = "2em"
+      // style.width = "3em"
     }
 
     const message = this.props.args["message"]
@@ -135,6 +183,8 @@ class WalletConnect extends StreamlitComponentBase<State> {
           disabled={this.props.disabled}
           onFocus={this._onFocus}
           onBlur={this._onBlur}
+          onMouseOver={this._onFocus}
+          onMouseOut={this._onBlur}
         >
           {message}
         </button>
@@ -145,20 +195,52 @@ class WalletConnect extends StreamlitComponentBase<State> {
   /** Click handler for our "Click Me!" button. */
   private onClicked = async (): Promise<void> => {
     if (this.props.args["key"] === "wallet") {
-    const address = await getAccount()
-    this.setState(
-      () => ({ walletAddress: address }),
-      () => Streamlit.setComponentValue(this.state.walletAddress)
-    )
-    } else if (this.props.args["key"] === "send") {
-      const tx: any = await sendToken(this.props.args["to_address"], this.props.args["amount"], this.props.args["contract_address"])
-      // const tx: any = await send_token(this.props.args["contract_address"], this.props.args["amount"], this.props.args["to_address"])
-      // const tx = await sendFixedPayment(String(this.props.args["amount"]), this.props.args["to"])
+      const address = await getAccount()
       this.setState(
-        () => ({ transaction: tx }),
-        () => Streamlit.setComponentValue(this.state.transaction)
+        () => ({ walletAddress: address }),
+        () => Streamlit.setComponentValue(this.state.walletAddress)
       )
-    }
+    } else if (this.props.args["key"] === "send") {
+        const tx: any = await sendToken(this.props.args["to_address"], this.props.args["amount"], this.props.args["contract_address"])
+        // const tx: any = await send_token(this.props.args["contract_address"], this.props.args["amount"], this.props.args["to_address"])
+        // const tx = await sendFixedPayment(String(this.props.args["amount"]), this.props.args["to"])
+        this.setState(
+          () => ({ transaction: tx }),
+          () => Streamlit.setComponentValue(this.state.transaction)
+        )
+    } else if (this.props.args["key"] === "encrypt") {
+        const { encryptedRealString, encryptedSymmetricKey } = await encrypt(this.props.args["message_to_encrypt"])
+        // syncWriteFile('./example.txt', encryptedRealString);
+        // const sth = await getAuthSig()
+        // console.log("Connected Web3", sth)
+        console.log("encryptedString", encryptedRealString)
+        console.log("encryptedSymmetricKey", encryptedSymmetricKey)
+        const decryptedString = await decrypt(encryptedRealString, encryptedSymmetricKey)
+        // console.log("decryptedString", decryptedString)
+        this.setState(
+          () => ({ encryptedString: encryptedRealString, encryptedSymmetricKey: encryptedSymmetricKey }),
+          () => Streamlit.setComponentValue({ encryptedRealString, encryptedSymmetricKey })
+        )
+    } else if (this.props.args["key"] === "decrypt") {
+        const { decryptedString } = await decrypt(this.props.args["encrypted_string"], this.props.args["encrypted_symmetric_key"])
+        this.setState(
+          () => ({ decryptedString: decryptedString }),
+          () => Streamlit.setComponentValue(decryptedString)
+        )
+        console.log("State of encrypted string3:", this.state.encryptedString)
+    } else if (this.props.args["key"] === "login") {
+        const lgn = await login(this.props.args["auth_nft_contract_address"])
+        this.setState(
+          () => ({ loggedIn: lgn }),
+          () => Streamlit.setComponentValue(lgn)
+        )
+    } else if (this.props.args["key"] === "mint_and_login") {
+      const lgn = await mintAndLogin()
+      this.setState(
+        () => ({ loggedIn: lgn }),
+        () => Streamlit.setComponentValue(lgn)
+      )
+  }
     // Increment state.numClicks, and pass the new value back to
     // Streamlit via `Streamlit.setComponentValue`.
   }
