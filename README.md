@@ -6,13 +6,13 @@ This repository contains the code behind the Web3 Streamlit Components that you 
 
 The current documentation is available [here](docs.md).
 
-## Installation
+## 🏗 Installation
 
 ```bash
 pip install streamlit-wallet-connect
 ```
 
-## Usage
+## 🤝 Usage
 Import the `streamlit_wallet_connect` module and use the `wallet_connect` function to connect to a wallet or send transactions.
 
 ```python
@@ -64,7 +64,7 @@ else:
 ```
 
 
-## 🏗 Development
+## 🧱 Development
 
 ### Set up your development environment
 
