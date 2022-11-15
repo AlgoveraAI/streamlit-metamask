@@ -209,33 +209,33 @@ class WalletConnect extends StreamlitComponentBase<State> {
           () => Streamlit.setComponentValue(this.state.transaction)
         )
     } else if (this.props.args["key"] === "encrypt") {
-        const { encryptedRealString, encryptedSymmetricKey } = await encrypt(this.props.args["message_to_encrypt"])
+        const { encryptedRealString, encryptedSymmetricKey } = await encrypt(this.props.args["message_to_encrypt"], this.props.args["chain_name"])
         // syncWriteFile('./example.txt', encryptedRealString);
         // const sth = await getAuthSig()
         // console.log("Connected Web3", sth)
-        console.log("encryptedString", encryptedRealString)
-        console.log("encryptedSymmetricKey", encryptedSymmetricKey)
-        const decryptedString = await decrypt(encryptedRealString, encryptedSymmetricKey)
+        // console.log("encryptedString", encryptedRealString)
+        // console.log("encryptedSymmetricKey", encryptedSymmetricKey)
+        // const decryptedString = await decrypt(encryptedRealString, encryptedSymmetricKey)
         // console.log("decryptedString", decryptedString)
         this.setState(
           () => ({ encryptedString: encryptedRealString, encryptedSymmetricKey: encryptedSymmetricKey }),
           () => Streamlit.setComponentValue({ encryptedRealString, encryptedSymmetricKey })
         )
     } else if (this.props.args["key"] === "decrypt") {
-        const { decryptedString } = await decrypt(this.props.args["encrypted_string"], this.props.args["encrypted_symmetric_key"])
+        const { decryptedString } = await decrypt(this.props.args["encrypted_string"], this.props.args["encrypted_symmetric_key"], this.props.args["chain_name"])
         this.setState(
           () => ({ decryptedString: decryptedString }),
           () => Streamlit.setComponentValue(decryptedString)
         )
         console.log("State of encrypted string3:", this.state.encryptedString)
     } else if (this.props.args["key"] === "login") {
-        const lgn = await login(this.props.args["auth_nft_contract_address"])
+        const lgn = await login(this.props.args["auth_nft_contract_address"], this.props.args["chain_name"])
         this.setState(
           () => ({ loggedIn: lgn }),
           () => Streamlit.setComponentValue(lgn)
         )
     } else if (this.props.args["key"] === "mint_and_login") {
-      const lgn = await mintAndLogin()
+      const lgn = await mintAndLogin(this.props.args["chain_name"])
       this.setState(
         () => ({ loggedIn: lgn }),
         () => Streamlit.setComponentValue(lgn)
