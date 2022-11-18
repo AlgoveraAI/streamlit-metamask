@@ -51,6 +51,8 @@ The first component is a login button that allows you to hide content of a Strea
 login_button = wallet_connect(label="login", key="login", message="Login", auth_nft_contract_address="NFT_CONTRACT_ADDRESS", chain_name="CHAIN_NAME")
 ```
 
+Chains supported by Lit Protocol: `ethereum`, `polygon`, `fantom`, `xdai`, `bsc`, `arbitrum`, `avalanche`, `fuji`, `harmony`, `kovan`, `mumbai`, `goerli`, `ropsten`, `rinkeby`, `cronos`, `optimism`, `celo`, `aurora`, `eluvio`, `alfajores`, `xdc`, `evmos`, `evmosTestnet`
+
 Example
 ```python
 
