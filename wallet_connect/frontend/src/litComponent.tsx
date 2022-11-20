@@ -851,7 +851,7 @@ async function provisionAccess(contractAddress: string, chainName: string) {
     });
 }
 
-async function requestJwt() {
+async function requestJwt(chainName: string) {
 
     const client = new LitJsSdk.LitNodeClient();
     await client.connect();
@@ -862,7 +862,7 @@ async function requestJwt() {
 
     window.jwt = await client.getSignedToken({
       accessControlConditions: window.accessControlConditions,
-      chain: 'polygon',
+      chain: chainName,
       authSig: window.authSig,
       resourceId: window.resourceId,
     });
@@ -939,7 +939,7 @@ export async function login(contractAddress: string, chainName: string) {
     try {
         await getAuthSig(chainName);
         await provisionAccess(contractAddress, chainName);
-        await requestJwt();
+        await requestJwt(chainName);
         console.log("You're logged in!");
         console.log("window.jwt", window.jwt);
         return true
@@ -958,7 +958,7 @@ export async function mintAndLogin(chainName: string) {
         const tx = await mintNft(chainName)
         console.log("tx", tx)
         await provisionAccess2();
-        await requestJwt();
+        await requestJwt(chainName);
         console.log("You're logged in!");
         console.log("window.jwt", window.jwt);
         return true
