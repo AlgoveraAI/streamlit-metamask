@@ -845,7 +845,7 @@ async function provisionAccess(contractAddress: string, chainName: string) {
 
     await client.saveSigningCondition({
       accessControlConditions: window.accessControlConditions,
-      chain: 'polygon',
+      chain: chainName,
       authSig: window.authSig,
       resourceId: window.resourceId,
     });
