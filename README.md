@@ -48,15 +48,55 @@ The `streamlit-wallet-connect` package now adds a number of extensions to enable
 The first component is a login button that allows you to hide content of a Streamlit app unless the user wallet holds a specific NFT (e.g. a reputation badge from your community). The login button returns `True` if the authentication was successful, otherwise it will throw an error (you can also check the logs in the browser console).
 
 ```python
-login_button = wallet_connect(label="login", key="login", message="Login", auth_nft_contract_address="NFT_CONTRACT_ADDRESS", chain_name="CHAIN_NAME")
+login_button = wallet_connect(label="login", key="login", message="Login", auth_nft_contract_address="NFT_CONTRACT_ADDRESS", chain_name="CHAIN_NAME", contract_type="CONTRACT_TYPE")
 ```
 
-Chains supported by Lit Protocol: `ethereum`, `polygon`, `fantom`, `xdai`, `bsc`, `arbitrum`, `avalanche`, `fuji`, `harmony`, `kovan`, `mumbai`, `goerli`, `ropsten`, `rinkeby`, `cronos`, `optimism`, `celo`, `aurora`, `eluvio`, `alfajores`, `xdc`, `evmos`, `evmosTestnet`
+| Supported chains |
+| --- |
+|`ethereum`|
+|`polygon`|
+|`fantom`|
+|`xdai`|
+|`bsc`|
+|`arbitrum`|
+|`avalanche`|
+|`fuji`| 
+|`harmony`|
+|`kovan` |
+`mumbai`| 
+|`goerli`| 
+|`ropsten`|
+|`rinkeby`|
+|`cronos`|
+|`optimism`|
+|`celo`|
+|`aurora`|
+|`eluvio`|
+|`alfajores`|
+|`xdc`| 
+|`evmos`|
+|`evmosTestnet`|
+
+
+The `wallet_connect` function allows you to create Streamlit apps that require the user to hold a specific NFT (e.g. a reputation badge from your community). The button returns `True` if your wallet holds the specific NFT, otherwise it will throw an error (you can also check the logs in the browser console). Although we are using NFTs as the main example, you are not restricted to any single contract type, you can use any contract that implements the `balanceOf` function. Below is a list of the most common contract types you may want to use, these need to be specified in the `contract_type` parameter.
+
+| Supported Contract Types|
+|-|
+|`ERC721`|
+|`ERC1155`|
+| `ERC20`|
 
 Example
 ```python
 
-login_button = wallet_connect(label="login", key="login", message="Login", auth_nft_contract_address="0x68085453B798adf9C09AD8861e0F0da96B908d81", chain_name="polygon")
+login_button = wallet_connect(
+    label="login", 
+    key="login", 
+    message="Login", 
+    auth_nft_contract_address="0x68085453B798adf9C09AD8861e0F0da96B908d81", 
+    chain_name="polygon",
+    contract_type="ERC1155"
+    )
 
 if login_button == True:
     st.write("Logged in!")

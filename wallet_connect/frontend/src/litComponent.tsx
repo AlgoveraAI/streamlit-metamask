@@ -672,8 +672,8 @@ const LIT_CHAINS: any = {
   
   
   // Set up the middleware stack
-  async function getAuthSig() {
-    const authSig = await checkAndSignAuthMessage({chain: 'polygon'});
+  async function getAuthSig(chain: string) {
+    const authSig = await checkAndSignAuthMessage({chain: chain});
     window.authSig = authSig;
     return authSig
   }
@@ -687,13 +687,13 @@ const LIT_CHAINS: any = {
   }
   
   
-export async function encrypt(messageToEncrypt: string) {
+export async function encrypt(messageToEncrypt: string, chainName: string) {
     const litNodeClient = await getClient();
     const accessControlConditions = [
       {
         contractAddress: '0x68085453B798adf9C09AD8861e0F0da96B908d81',
         standardContractType: "ERC1155",
-        chain: "polygon",
+        chain: chainName,
         method: "balanceOf",
         parameters: [":userAddress", '0', '1', '2', '3', '4', '5' ],
         returnValueTest: {
@@ -703,9 +703,9 @@ export async function encrypt(messageToEncrypt: string) {
       },
     ];
     console.log("getting authSig");
-    const authSig = await getAuthSig();
+    const authSig = await getAuthSig(chainName);
     console.log("got authSig ", authSig);
-    const chain = "polygon";
+    const chain = chainName;
   
     // encrypting content -> this we can change to our own content
     const { encryptedString, symmetricKey } = await LitJsSdk.encryptString(
@@ -730,21 +730,19 @@ export async function encrypt(messageToEncrypt: string) {
 }
   
   
-export async function decrypt(encryptedRealString: string, encryptedSymmetricKey: string) {
-    console.log("encryptedRealString", encryptedRealString);
-    console.log("encryptedSymmetricKey", encryptedSymmetricKey);
+export async function decrypt(encryptedRealString: string, encryptedSymmetricKey: string, chainName: string) {
+    console.log("Decrypting...")
     const encryptedString = LitJsSdk.base64StringToBlob(encryptedRealString)
-    console.log("encrytpeString", encryptedString);
     const litNodeClient = await getClient();
   
-    const authSig = await getAuthSig();
+    const authSig = await getAuthSig(chainName);
   
-    const chain = "polygon";
+    const chain = chainName;
     window.accessControlConditions = [
       {
         contractAddress: '0x68085453B798adf9C09AD8861e0F0da96B908d81',
         standardContractType: "ERC1155",
-        chain: "polygon",
+        chain: chainName,
         method: "balanceOf",
         parameters: [":userAddress", '0', '1', '2', '3', '4', '5' ],
         returnValueTest: {
@@ -770,11 +768,11 @@ export async function decrypt(encryptedRealString: string, encryptedSymmetricKey
     return { decryptedString }
 }
 
-async function provisionAccess2() {
+async function provisionAccess2(contractType: string="ERC1155") {
       window.accessControlConditions = [
         {
           contractAddress: LitJsSdk.LIT_CHAINS[window.chain].contractAddress,
-          standardContractType: 'ERC1155',
+          standardContractType: contractType,
           chain: window.chain,
           method: 'balanceOf',
           parameters: [
@@ -811,12 +809,12 @@ async function provisionAccess2() {
       })
     }
 
-async function provisionAccess(contractAddress: string) {
+async function provisionAccess(contractAddress: string, chainName: string, contractType: string="ERC1155") {
     window.accessControlConditions = [
       {
         contractAddress: contractAddress,
-        standardContractType: "ERC1155",
-        chain: "polygon",
+        standardContractType: contractType,
+        chain: chainName,
         method: "balanceOf",
         parameters: [":userAddress", '0', '1', '2', '3', '4', '5' ],
         returnValueTest: {
@@ -847,13 +845,13 @@ async function provisionAccess(contractAddress: string) {
 
     await client.saveSigningCondition({
       accessControlConditions: window.accessControlConditions,
-      chain: 'polygon',
+      chain: chainName,
       authSig: window.authSig,
       resourceId: window.resourceId,
     });
 }
 
-async function requestJwt() {
+async function requestJwt(chainName: string) {
 
     const client = new LitJsSdk.LitNodeClient();
     await client.connect();
@@ -864,7 +862,7 @@ async function requestJwt() {
 
     window.jwt = await client.getSignedToken({
       accessControlConditions: window.accessControlConditions,
-      chain: 'polygon',
+      chain: chainName,
       authSig: window.authSig,
       resourceId: window.resourceId,
     });
@@ -918,10 +916,10 @@ async function mintLIT({ chain, quantity }: any) {
     }
   }
 
-async function mintNft() {
+async function mintNft(chainName: string) {
     console.log("Minting NFT, please wait for the tx to confirm...")
 
-    window.chain = "polygon"
+    window.chain = chainName
 
     const {
       txHash,
@@ -937,11 +935,11 @@ async function mintNft() {
     return txHash
 }
 
-export async function login(contractAddress: string) {
+export async function login(contractAddress: string, chainName: string, contractType: string="ERC1155") {
     try {
-        await getAuthSig();
-        await provisionAccess(contractAddress);
-        await requestJwt();
+        await getAuthSig(chainName);
+        await provisionAccess(contractAddress, chainName, contractType);
+        await requestJwt(chainName);
         console.log("You're logged in!");
         console.log("window.jwt", window.jwt);
         return true
@@ -954,13 +952,13 @@ export async function login(contractAddress: string) {
     // await visitProtectedServer(window.jwt);
 }
 
-export async function mintAndLogin() {
+export async function mintAndLogin(chainName: string, contractType: string="ERC1155") {
     try {
-        await getAuthSig();
-        const tx = await mintNft()
+        await getAuthSig(chainName);
+        const tx = await mintNft(chainName)
         console.log("tx", tx)
-        await provisionAccess2();
-        await requestJwt();
+        await provisionAccess2(contractType);
+        await requestJwt(chainName);
         console.log("You're logged in!");
         console.log("window.jwt", window.jwt);
         return true
