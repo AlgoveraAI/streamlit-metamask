@@ -768,11 +768,11 @@ export async function decrypt(encryptedRealString: string, encryptedSymmetricKey
     return { decryptedString }
 }
 
-async function provisionAccess2() {
+async function provisionAccess2(contractType: string="ERC1155") {
       window.accessControlConditions = [
         {
           contractAddress: LitJsSdk.LIT_CHAINS[window.chain].contractAddress,
-          standardContractType: 'ERC1155',
+          standardContractType: contractType,
           chain: window.chain,
           method: 'balanceOf',
           parameters: [
@@ -809,11 +809,11 @@ async function provisionAccess2() {
       })
     }
 
-async function provisionAccess(contractAddress: string, chainName: string) {
+async function provisionAccess(contractAddress: string, chainName: string, contractType: string="ERC1155") {
     window.accessControlConditions = [
       {
         contractAddress: contractAddress,
-        standardContractType: "ERC1155",
+        standardContractType: contractType,
         chain: chainName,
         method: "balanceOf",
         parameters: [":userAddress", '0', '1', '2', '3', '4', '5' ],
