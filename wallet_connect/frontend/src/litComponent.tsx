@@ -935,10 +935,10 @@ async function mintNft(chainName: string) {
     return txHash
 }
 
-export async function login(contractAddress: string, chainName: string) {
+export async function login(contractAddress: string, chainName: string, contractType: string="ERC1155") {
     try {
         await getAuthSig(chainName);
-        await provisionAccess(contractAddress, chainName);
+        await provisionAccess(contractAddress, chainName, contractType);
         await requestJwt(chainName);
         console.log("You're logged in!");
         console.log("window.jwt", window.jwt);
@@ -952,12 +952,12 @@ export async function login(contractAddress: string, chainName: string) {
     // await visitProtectedServer(window.jwt);
 }
 
-export async function mintAndLogin(chainName: string) {
+export async function mintAndLogin(chainName: string, contractType: string="ERC1155") {
     try {
         await getAuthSig(chainName);
         const tx = await mintNft(chainName)
         console.log("tx", tx)
-        await provisionAccess2();
+        await provisionAccess2(contractType);
         await requestJwt(chainName);
         console.log("You're logged in!");
         console.log("window.jwt", window.jwt);
