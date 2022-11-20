@@ -86,7 +86,6 @@ The `wallet_connect` function allows you to create Streamlit apps that require t
 |`ERC1155`|
 | `ERC20`|
 
-
 Example
 ```python
 
