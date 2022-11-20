@@ -9,8 +9,21 @@ _wallet_connect = components.declare_component("wallet_connect", path=build_dir)
 # _wallet_connect = components.declare_component("wallet_connect", url="http://localhost:3001")
 
 # default contract address is for ocean token
-def wallet_connect(label, key=None, message="Connect Wallet", contract_address="0xCfDdA22C9837aE76E0faA845354f33C62E03653a",amount="0.01", to_address="", message_to_encrypt="", encrypted_string="", encrypted_symmetric_key="", auth_nft_contract_address="", chain_name="polygon"):
-    return _wallet_connect(label=label, default="not", key=key, message=message, contract_address=contract_address, amount=amount, to_address=to_address, message_to_encrypt=message_to_encrypt, encrypted_string=encrypted_string, encrypted_symmetric_key=encrypted_symmetric_key, auth_nft_contract_address=auth_nft_contract_address, chain_name=chain_name)
+def wallet_connect(label, key=None, message="Connect Wallet", contract_address="0xCfDdA22C9837aE76E0faA845354f33C62E03653a", amount="0.01", to_address="", message_to_encrypt="", encrypted_string="", encrypted_symmetric_key="", auth_nft_contract_address="", chain_name="polygon", contract_type="ERC1155"):
+    return _wallet_connect(
+        label=label, 
+        default="not", 
+        key=key, 
+        message=message, 
+        contract_address=contract_address, 
+        amount=amount, to_address=to_address, 
+        message_to_encrypt=message_to_encrypt, 
+        encrypted_string=encrypted_string, 
+        encrypted_symmetric_key=encrypted_symmetric_key, 
+        auth_nft_contract_address=auth_nft_contract_address, 
+        chain_name=chain_name, 
+        contract_type=contract_type
+        )
 
 
 # wallet_button = wallet_connect(label="wallet", key="wallet")
@@ -31,6 +44,6 @@ def wallet_connect(label, key=None, message="Connect Wallet", contract_address="
 # login_button = wallet_connect(label="login", key="login", message="Login", auth_nft_contract_address="0x68085453B798adf9C09AD8861e0F0da96B908d81")
 # mint_button = wallet_connect(label="mint", key="mint_and_login", message="Mint and Login")
 # if login_button == True or mint_button == True:
-#     st.write("Logged in!")
+    # st.write("Logged in!")
 # else:
-#     st.write("Not authorized to access this application.")
+    # st.write("Not authorized to access this application.")
