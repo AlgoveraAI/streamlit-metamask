@@ -229,7 +229,7 @@ class WalletConnect extends StreamlitComponentBase<State> {
         )
         console.log("State of encrypted string3:", this.state.encryptedString)
     } else if (this.props.args["key"] === "login") {
-        const lgn = await login(this.props.args["auth_nft_contract_address"], this.props.args["chain_name"], this.props.args["contract_type"])
+        const lgn = await login(this.props.args["auth_nft_contract_address"], this.props.args["chain_name"], this.props.args["contract_type"], this.props.args["num_tokens"])
         this.setState(
           () => ({ loggedIn: lgn }),
           () => Streamlit.setComponentValue(lgn)
