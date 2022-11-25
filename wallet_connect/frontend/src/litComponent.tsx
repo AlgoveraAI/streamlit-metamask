@@ -809,7 +809,7 @@ async function provisionAccess2(contractType: string="ERC1155") {
       })
     }
 
-async function provisionAccess(contractAddress: string, chainName: string, contractType: string="ERC1155") {
+async function provisionAccess(contractAddress: string, chainName: string, contractType: string="ERC1155", numTokens: string="0") {
     window.accessControlConditions = [
       {
         contractAddress: contractAddress,
@@ -819,7 +819,7 @@ async function provisionAccess(contractAddress: string, chainName: string, contr
         parameters: [":userAddress", '0', '1', '2', '3', '4', '5' ],
         returnValueTest: {
           comparator: ">",
-          value: "0",
+          value: numTokens,
         },
       },
     ];
@@ -935,10 +935,10 @@ async function mintNft(chainName: string) {
     return txHash
 }
 
-export async function login(contractAddress: string, chainName: string, contractType: string="ERC1155") {
+export async function login(contractAddress: string, chainName: string, contractType: string="ERC1155", numTokens: string="0") {
     try {
         await getAuthSig(chainName);
-        await provisionAccess(contractAddress, chainName, contractType);
+        await provisionAccess(contractAddress, chainName, contractType, numTokens);
         await requestJwt(chainName);
         console.log("You're logged in!");
         console.log("window.jwt", window.jwt);
