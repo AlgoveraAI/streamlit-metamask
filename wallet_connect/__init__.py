@@ -9,7 +9,7 @@ _wallet_connect = components.declare_component("wallet_connect", path=build_dir)
 # _wallet_connect = components.declare_component("wallet_connect", url="http://localhost:3001")
 
 # default contract address is for ocean token
-def wallet_connect(label, key=None, message="Connect Wallet", contract_address="0xCfDdA22C9837aE76E0faA845354f33C62E03653a", amount="0.01", to_address="", message_to_encrypt="", encrypted_string="", encrypted_symmetric_key="", auth_nft_contract_address="", chain_name="polygon", contract_type="ERC1155", num_tokens="0"):
+def wallet_connect(label, key=None, message="Connect Wallet", contract_address="0xCfDdA22C9837aE76E0faA845354f33C62E03653a", amount="0.01", to_address="", message_to_encrypt="", encrypted_string="", encrypted_symmetric_key="", auth_token_contract_address="", chain_name="polygon", contract_type="ERC1155", num_tokens="0"):
     return _wallet_connect(
         label=label,
         default="not",
@@ -20,7 +20,7 @@ def wallet_connect(label, key=None, message="Connect Wallet", contract_address="
         message_to_encrypt=message_to_encrypt,
         encrypted_string=encrypted_string,
         encrypted_symmetric_key=encrypted_symmetric_key,
-        auth_nft_contract_address=auth_nft_contract_address,
+        auth_token_contract_address=auth_token_contract_address,
         chain_name=chain_name,
         contract_type=contract_type,
         num_tokens=num_tokens
@@ -42,9 +42,9 @@ def wallet_connect(label, key=None, message="Connect Wallet", contract_address="
 # decrypt_button = wallet_connect(label="decrypt", key="decrypt", message="Decrypt", encrypted_string=encrypted_string, encrypted_symmetric_key=encrypted_symmetric_key)
 # st.write(decrypt_button)
 
-# login_button = wallet_connect(label="login", key="login", message="Login", auth_nft_contract_address="0x68085453B798adf9C09AD8861e0F0da96B908d81")
+# login_button = wallet_connect(label="login", key="login", message="Login", auth_token_contract_address="0x68085453B798adf9C09AD8861e0F0da96B908d81", chain_name="polygon", contract_type="ERC1155", num_tokens="0")
 # mint_button = wallet_connect(label="mint", key="mint_and_login", message="Mint and Login")
-# if login_button == True or mint_button == True:
-    # st.write("Logged in!")
+# if login_button == True:
+#     st.write("Logged in!")
 # else:
-    # st.write("Not authorized to access this application.")
+#     st.write("Not authorized to access this application.")
