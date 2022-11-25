@@ -48,8 +48,18 @@ The `streamlit-wallet-connect` package now adds a number of extensions to enable
 The first component is a login button that allows you to hide content of a Streamlit app unless the user wallet holds a specific NFT (e.g. a reputation badge from your community). The login button returns `True` if the authentication was successful, otherwise it will throw an error (you can also check the logs in the browser console).
 
 ```python
-login_button = wallet_connect(label="login", key="login", message="Login", auth_nft_contract_address="NFT_CONTRACT_ADDRESS", chain_name="CHAIN_NAME", contract_type="CONTRACT_TYPE")
+login_button = wallet_connect(
+    label="login", 
+    key="login", 
+    message="Login", 
+    auth_token_contract_address="NFT_CONTRACT_ADDRESS",
+    chain_name="CHAIN_NAME", 
+    contract_type="CONTRACT_TYPE",
+    num_tokens="0"
+    )
 ```
+
+The `num_tokens` parameter sets the lower bound on the number of tokens that the user needs to hold to be authenticated. If you require the user to hold at least one token, set `num_tokens` to `"0"`.
 
 | Supported chains |
 | --- |
@@ -95,7 +105,8 @@ login_button = wallet_connect(
     message="Login", 
     auth_nft_contract_address="0x68085453B798adf9C09AD8861e0F0da96B908d81", 
     chain_name="polygon",
-    contract_type="ERC1155"
+    contract_type="ERC1155",
+    num_tokens="0"
     )
 
 if login_button == True:
