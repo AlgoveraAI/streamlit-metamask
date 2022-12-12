@@ -809,6 +809,47 @@ async function provisionAccess2(contractType: string="ERC1155") {
       })
     }
 
+async function provisionAccess3(contractType: string="ERC1155", contractAddress: string, tokenId: string) {
+      window.accessControlConditions = [
+        {
+          contractAddress: contractAddress,
+          standardContractType: contractType,
+          chain: window.chain,
+          method: 'balanceOf',
+          parameters: [
+            ':userAddress',
+            tokenId,
+          ],
+          returnValueTest: {
+            comparator: '>',
+            value: '0'
+          }
+        }
+      ]
+      // generate a random path because you can only provision access to a given path once
+      const randomUrlPath = "/" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      window.resourceId = {
+        baseUrl: 'my-dynamic-content-server.com',
+        path: randomUrlPath, // this would normally be your url path, like "/webpage.html" for example
+        orgId: "",
+        role: "",
+        extraData: ""
+      }
+
+      const client = new LitJsSdk.LitNodeClient();
+        await client.connect();
+        window.litNodeClient = client;
+        console.log("Lit client connected", client);
+        console.log("Window.litNodeClient", window.litNodeClient);
+
+      await client.saveSigningCondition({
+        accessControlConditions: window.accessControlConditions,
+        chain: window.chain,
+        authSig: window.authSig,
+        resourceId: window.resourceId
+      })
+}
+
 async function provisionAccess(contractAddress: string, chainName: string, contractType: string="ERC1155", numTokens: string="0") {
     window.accessControlConditions = [
       {
@@ -872,6 +913,43 @@ async function requestJwt(chainName: string) {
 // async function visitProtectedServer(jwt) {
 //     window.location = "/?jwt=" + window.jwt;
 // }
+
+
+async function mintAlgovera({ chain, quantity }: any) {
+  console.log(`minting ${quantity} tokens on ${chain}`);
+  try {
+    const authSig = await checkAndSignEVMAuthMessage({
+      chain,
+      switchChain: true,
+    });
+    if (authSig.errorCode) {
+      return authSig;
+    }
+    const { web3, account } = await connectWeb3();
+    const tokenAddress = "INSERT_ALGOVERA_TOKEN_ADDRESS";
+    if (!tokenAddress) {
+      console.log("No token address for this chain.  It's not supported via MintLIT.");
+      return;
+    }
+    const contract = new Contract(tokenAddress, "INSERT_CONTRACT_ABI", web3.getSigner());
+    console.log("sending to chain...");
+    const tx = await contract.mint(quantity);
+    console.log("sent to chain.  waiting to be mined...");
+    const txReceipt = await tx.wait();
+    console.log("txReceipt: ", txReceipt);
+    const tokenId = txReceipt.events[0].args[3].toNumber();
+    return {
+      txHash: txReceipt.transactionHash,
+      tokenId,
+      tokenAddress,
+      mintingAddress: account,
+      authSig,
+    };
+  } catch (error) {
+    console.log(error);
+    return { errorCode: "unknown_error" };
+  }
+}
 
 /**
  * This function mints a LIT using our pre-deployed token contracts.  You may use our contracts, or you may supply your own.  Our contracts are ERC1155 tokens on Polygon and Ethereum.  Using these contracts is the easiest way to get started.
@@ -966,6 +1044,22 @@ export async function mintAndLogin(chainName: string, contractType: string="ERC1
         console.log("Error", e);
         return false
     }
+}
+
+export async function mintAndLoginAlgovera(chainName: string, contractType: string="ERC1155") {
+  try {
+      await getAuthSig(chainName);
+      const tx = await mintNft(chainName)
+      console.log("tx", tx)
+      await provisionAccess3(contractType, "INSERT_CONTRACT_ADDRESS", "INSERT_TOKEN_ID");
+      await requestJwt(chainName);
+      console.log("You're logged in!");
+      console.log("window.jwt", window.jwt);
+      return true
+  } catch (e) {
+      console.log("Error", e);
+      return false
+  }
 }
 
 // End Lit Protocol Integration
