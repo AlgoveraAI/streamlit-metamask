@@ -5,7 +5,7 @@ import {
 } from "streamlit-component-lib"
 import React, { ReactNode } from "react"
 import * as ethers from "ethers"
-import { encrypt, decrypt, login, mintAndLogin } from "./litComponent"
+import { encrypt, decrypt, login, mintAndLogin, initToken } from "./litComponent"
 import { readFileSync, writeFileSync, promises as fsPromises } from 'fs';
 import { join } from 'path';
 
@@ -17,6 +17,7 @@ interface State {
   encryptedSymmetricKey: string
   decryptedString: string
   loggedIn: boolean
+  tokenId: string
 }
 
 declare global {
@@ -139,7 +140,8 @@ class WalletConnect extends StreamlitComponentBase<State> {
     encryptedString: "", 
     encryptedSymmetricKey: "", 
     decryptedString: "", 
-    loggedIn: false, 
+    loggedIn: false,
+    tokenId: ""
   };
 
   public render = (): ReactNode => {
@@ -240,7 +242,14 @@ class WalletConnect extends StreamlitComponentBase<State> {
         () => ({ loggedIn: lgn }),
         () => Streamlit.setComponentValue(lgn)
       )
-  }
+  } else if (this.props.args["key"] === "create_token") {
+    const tknId = await initToken(this.props.args["price"], this.props.args["supply"])
+    console.log("Token ID: ", tknId)
+    this.setState(
+      () => ({ tokenId: tknId }),
+      () => Streamlit.setComponentValue(tknId)
+    )
+}
     // Increment state.numClicks, and pass the new value back to
     // Streamlit via `Streamlit.setComponentValue`.
   }
