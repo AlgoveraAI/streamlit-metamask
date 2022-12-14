@@ -951,6 +951,24 @@ async function mintAlgovera({ chain, quantity }: any) {
   }
 }
 
+async function initToken(price: string, supply: string) {
+  try {
+    const { web3, account } = await connectWeb3();
+    const tokenAddress = "INSERT_ALGOVERA_TOKEN_ADDRESS";
+    const contract = new Contract(tokenAddress, "INSERT_CONTRACT_ABI", web3.getSigner());
+    console.log("sending to chain...");
+    const tx = await contract.createToken(price, supply);
+    console.log("sent to chain.  waiting to be mined...");
+    const txReceipt = await tx.wait();
+    console.log("txReceipt: ", txReceipt);
+    const tokenId = txReceipt.events[0].args[3].toNumber();
+    return tokenId;
+  } catch (error) {
+    console.log(error);
+    return { errorCode: "unknown_error" };
+  }
+}
+
 /**
  * This function mints a LIT using our pre-deployed token contracts.  You may use our contracts, or you may supply your own.  Our contracts are ERC1155 tokens on Polygon and Ethereum.  Using these contracts is the easiest way to get started.
  * @param {Object} params
