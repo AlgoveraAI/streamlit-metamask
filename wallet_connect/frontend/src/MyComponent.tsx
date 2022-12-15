@@ -17,7 +17,7 @@ interface State {
   encryptedSymmetricKey: string
   decryptedString: string
   loggedIn: boolean
-  tokenId: string
+  tokenId: any
 }
 
 declare global {
@@ -243,7 +243,7 @@ class WalletConnect extends StreamlitComponentBase<State> {
         () => Streamlit.setComponentValue(lgn)
       )
   } else if (this.props.args["key"] === "create_token") {
-    const tknId = await initToken(this.props.args["price"], this.props.args["supply"])
+    const tknId = await initToken(this.props.args["price"], this.props.args["supply"], this.props.args["uri"])
     console.log("Token ID: ", tknId)
     this.setState(
       () => ({ tokenId: tknId }),
