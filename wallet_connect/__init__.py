@@ -9,7 +9,7 @@ _wallet_connect = components.declare_component("wallet_connect", path=build_dir)
 # _wallet_connect = components.declare_component("wallet_connect", url="http://localhost:3001")
 
 # default contract address is for ocean token
-def wallet_connect(label, key=None, message="Connect Wallet", contract_address="0xCfDdA22C9837aE76E0faA845354f33C62E03653a", amount="0.01", to_address="", message_to_encrypt="", encrypted_string="", encrypted_symmetric_key="", auth_token_contract_address="", chain_name="polygon", contract_type="ERC1155", num_tokens="0"):
+def wallet_connect(label, key=None, message="Connect Wallet", contract_address="0xCfDdA22C9837aE76E0faA845354f33C62E03653a", amount="0.01", to_address="", message_to_encrypt="", encrypted_string="", encrypted_symmetric_key="", auth_token_contract_address="", chain_name="polygon", contract_type="ERC1155", num_tokens="0", price="0.01", supply="100", uri=""):
     return _wallet_connect(
         label=label,
         default="not",
@@ -23,7 +23,10 @@ def wallet_connect(label, key=None, message="Connect Wallet", contract_address="
         auth_token_contract_address=auth_token_contract_address,
         chain_name=chain_name,
         contract_type=contract_type,
-        num_tokens=num_tokens
+        num_tokens=num_tokens,
+        price=price,
+        supply=supply,
+        uri=uri
         )
 
 
