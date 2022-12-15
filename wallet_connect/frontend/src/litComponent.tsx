@@ -951,17 +951,17 @@ async function mintAlgovera({ chain, quantity }: any) {
   }
 }
 
-async function initToken(price: string, supply: string) {
+export async function initToken(price: string, supply: string, uri: string) {
   try {
     const { web3, account } = await connectWeb3();
     const tokenAddress = "INSERT_ALGOVERA_TOKEN_ADDRESS";
     const contract = new Contract(tokenAddress, "INSERT_CONTRACT_ABI", web3.getSigner());
     console.log("sending to chain...");
-    const tx = await contract.createToken(price, supply);
+    const tx = await contract.createToken(price, uri, supply);
     console.log("sent to chain.  waiting to be mined...");
     const txReceipt = await tx.wait();
     console.log("txReceipt: ", txReceipt);
-    const tokenId = txReceipt.events[0].args[3].toNumber();
+    const tokenId = parseInt(txReceipt.events[0].data, 16)
     return tokenId;
   } catch (error) {
     console.log(error);
