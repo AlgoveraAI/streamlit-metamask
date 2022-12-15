@@ -16,6 +16,7 @@ import nacl from "tweetnacl";
 import { ethers } from "ethers";
 
 import LIT from "lit-js-sdk/src/abis/LIT.json";
+import A from "./Algovera.json"
 
 const LitJsSdk = require("lit-js-sdk");
 
@@ -954,8 +955,8 @@ async function mintAlgovera({ chain, quantity }: any) {
 export async function initToken(price: string, supply: string, uri: string) {
   try {
     const { web3, account } = await connectWeb3();
-    const tokenAddress = "INSERT_ALGOVERA_TOKEN_ADDRESS";
-    const contract = new Contract(tokenAddress, "INSERT_CONTRACT_ABI", web3.getSigner());
+    const tokenAddress = "0x35cA20b4c393dD3C425565E0DC2059Eebe9e1422";
+    const contract = new Contract(tokenAddress, A.abi, web3.getSigner());
     console.log("sending to chain...");
     const tx = await contract.createToken(price, uri, supply);
     console.log("sent to chain.  waiting to be mined...");
