@@ -5,11 +5,11 @@ import os
 
 parent_dir = os.path.dirname(os.path.abspath(__file__))
 build_dir = os.path.join(parent_dir, "frontend/build")
-_wallet_connect = components.declare_component("wallet_connect", path=build_dir)
-# _wallet_connect = components.declare_component("wallet_connect", url="http://localhost:3001")
+# _wallet_connect = components.declare_component("wallet_connect", path=build_dir)
+_wallet_connect = components.declare_component("wallet_connect", url="http://localhost:3001")
 
 # default contract address is for ocean token
-def wallet_connect(label, key=None, message="Connect Wallet", contract_address="0xCfDdA22C9837aE76E0faA845354f33C62E03653a", amount="0.01", to_address="", message_to_encrypt="", encrypted_string="", encrypted_symmetric_key="", auth_token_contract_address="", chain_name="polygon", contract_type="ERC1155", num_tokens="0", price="0.01", supply="100", uri=""):
+def wallet_connect(label, key=None, message="Connect Wallet", contract_address="0xCfDdA22C9837aE76E0faA845354f33C62E03653a", amount="0.01", to_address="", message_to_encrypt="", encrypted_string="", encrypted_symmetric_key="", auth_token_contract_address="", chain_name="polygon", contract_type="ERC1155", num_tokens="0", price=10, supply=100, uri=""):
     return _wallet_connect(
         label=label,
         default="not",
@@ -30,8 +30,11 @@ def wallet_connect(label, key=None, message="Connect Wallet", contract_address="
         )
 
 
-# wallet_button = wallet_connect(label="wallet", key="wallet")
-# st.write(f"Wallet {wallet_button} connected.")
+wallet_button = wallet_connect(label="wallet", key="wallet")
+st.write(f"Wallet {wallet_button} connected.")
+
+button = wallet_connect(message="Create Token", label="create_token", key="create_token", price=0.1, supply=1000, uri="https://gateway.pinata.cloud/ipfs/QmZrFfBGmUmXYUVeTrKdKC1aFeBBEEXQPGhsJtX45GwCC5")
+st.write(f"TokenId is {button}")
 # # second_button = wallet_connect(label="send", key="send", message="Send Transaction", contract_address="0xCfDdA22C9837aE76E0faA845354f33C62E03653a", amount="10", to_address="") # need to fill in to_address
 # message_to_encrypt = st.text_input("Message to encrypt")
 # encrypt_button = wallet_connect(label="encrypt", key="encrypt", message="Encrypt", message_to_encrypt=message_to_encrypt)

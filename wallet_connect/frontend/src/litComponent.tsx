@@ -952,13 +952,13 @@ async function mintAlgovera({ chain, quantity }: any) {
   }
 }
 
-export async function initToken(price: string, supply: string, uri: string) {
+export async function initToken(price: number, supply: number, uri: string) {
   try {
     const { web3, account } = await connectWeb3();
     const tokenAddress = "0x35cA20b4c393dD3C425565E0DC2059Eebe9e1422";
     const contract = new Contract(tokenAddress, A.abi, web3.getSigner());
     console.log("sending to chain...");
-    const tx = await contract.createToken(price, uri, supply);
+    const tx = await contract.createToken(100, uri, 1000);
     console.log("sent to chain.  waiting to be mined...");
     const txReceipt = await tx.wait();
     console.log("txReceipt: ", txReceipt);
