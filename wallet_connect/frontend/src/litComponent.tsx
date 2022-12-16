@@ -810,7 +810,7 @@ async function provisionAccess2(contractType: string="ERC1155") {
       })
     }
 
-async function provisionAccess3(contractType: string="ERC1155", contractAddress: string, tokenId: string) {
+async function provisionAccess3(contractType: string="ERC1155", contractAddress: string, tokenId: number) {
       window.accessControlConditions = [
         {
           contractAddress: contractAddress,
@@ -916,7 +916,7 @@ async function requestJwt(chainName: string) {
 // }
 
 
-async function mintAlgovera(tknId: string, quantity: number) {
+async function mintAlgovera(tknId: number, quantity: number, price: number) {
   console.log(`minting ${quantity} tokens on ${window.chain}`);
   try {
     const chain = window.chain
@@ -928,11 +928,43 @@ async function mintAlgovera(tknId: string, quantity: number) {
       return authSig;
     }
     const { web3, account } = await connectWeb3();
+    const signer = web3.getSigner()
     const tokenAddress = "0x35cA20b4c393dD3C425565E0DC2059Eebe9e1422";
     if (!tokenAddress) {
       console.log("No token address for this chain.  It's not supported via MintLIT.");
       return;
     }
+
+    const methodSignature = await accessContract.interface.encodeFunctionData(
+      "mint",
+      [tknId] 
+    );
+    
+    const txnParams = {
+      to: tokenAddress,
+      value: price, 
+      data: methodSignature,
+      from: account,
+    };
+    const gasEstimate = await signer.estimateGas(txnParams);
+    console.log("Gas estimate:", gasEstimate.toString());
+    
+    // send transaction
+    const txn = await signer.sendTransaction({
+      to: "0x35cA20b4c393dD3C425565E0DC2059Eebe9e1422",
+      value: price, 
+      data: methodSignature,
+      gasLimit: gasEstimate,
+    });
+    console.log("Transaction:", txn);
+    
+    // wait for transaction to be mined
+    const receipt = await txn.wait();
+    console.log("Receipt:", receipt);
+
+
+
+    
     const contract = new Contract(tokenAddress, A.abi, web3.getSigner());
     console.log("sending to chain...");
     const tx = await contract.mint(tknId, quantity);
@@ -971,7 +1003,7 @@ export async function initToken(price: number, supply: number, uri: string) {
   }
 }
 
-async function mintNftAlgovera(chainName: string, tknId: string) {
+async function mintNftAlgovera(chainName: string, tknId: number, price: number) {
   console.log("Minting NFT, please wait for the tx to confirm...")
 
   window.chain = chainName
@@ -982,13 +1014,15 @@ async function mintNftAlgovera(chainName: string, tknId: string) {
     tokenAddress,
     mintingAddress,
     authSig
-  } = await mintAlgovera(tknId, 1)
+  } = await mintAlgovera(tknId, 1, price)
   window.tokenId = tokenId
   window.tokenAddress = tokenAddress
   window.authSig = authSig
 
   return txHash
 }
+
+
 
 /**
  * This function mints a LIT using our pre-deployed token contracts.  You may use our contracts, or you may supply your own.  Our contracts are ERC1155 tokens on Polygon and Ethereum.  Using these contracts is the easiest way to get started.
@@ -1085,10 +1119,10 @@ export async function mintAndLogin(chainName: string, contractType: string="ERC1
     }
 }
 
-export async function mintAndLoginAlgovera(chainName: string, contractType: string="ERC1155", tknId: string) {
+export async function mintAndLoginAlgovera(chainName: string, contractType: string="ERC1155", tknId: number, price: number) {
   try {
       await getAuthSig(chainName);
-      const tx = await mintNftAlgovera(chainName, tknId)
+      const tx = await mintNftAlgovera(chainName, tknId, price)
       console.log("tx", tx)
       await provisionAccess3(contractType, A.address, tknId);
       await requestJwt(chainName);
