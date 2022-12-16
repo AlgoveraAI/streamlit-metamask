@@ -935,7 +935,10 @@ async function mintAlgovera(tknId: number, quantity: number, price: number) {
       return;
     }
 
-    const methodSignature = await accessContract.interface.encodeFunctionData(
+    const contract = new Contract(tokenAddress, A.abi, web3.getSigner());
+    console.log("sending to chain...");
+
+    const methodSignature = await contract.interface.encodeFunctionData(
       "mint",
       [tknId] 
     );
@@ -957,7 +960,8 @@ async function mintAlgovera(tknId: number, quantity: number, price: number) {
       gasLimit: gasEstimate,
     });
     console.log("Transaction:", txn);
-    
+    console.log("sent to chain.  waiting to be mined...");
+
     // wait for transaction to be mined
     const receipt = await txn.wait();
     console.log("Receipt:", receipt);
@@ -965,20 +969,19 @@ async function mintAlgovera(tknId: number, quantity: number, price: number) {
 
 
     
-    const contract = new Contract(tokenAddress, A.abi, web3.getSigner());
-    console.log("sending to chain...");
-    const tx = await contract.mint(tknId, quantity);
-    console.log("sent to chain.  waiting to be mined...");
-    const txReceipt = await tx.wait();
-    console.log("txReceipt: ", txReceipt);
-    const tokenId = txReceipt.events[0].args[3].toNumber();
-    return {
-      txHash: txReceipt.transactionHash,
-      tokenId,
-      tokenAddress,
-      mintingAddress: account,
-      authSig,
-    };
+    
+    // const tx = await contract.mint(tknId, quantity);
+    // console.log("sent to chain.  waiting to be mined...");
+    // const txReceipt = await tx.wait();
+    // console.log("txReceipt: ", txReceipt);
+    // const tokenId = txReceipt.events[0].args[3].toNumber();
+    // return {
+    //   txHash: txReceipt.transactionHash,
+    //   tokenId,
+    //   tokenAddress,
+    //   mintingAddress: account,
+    //   authSig,
+    // };
   } catch (error) {
     console.log(error);
     return { errorCode: "unknown_error" };
