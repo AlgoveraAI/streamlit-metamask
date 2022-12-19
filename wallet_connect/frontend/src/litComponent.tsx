@@ -1122,12 +1122,12 @@ export async function mintAndLogin(chainName: string, contractType: string="ERC1
     }
 }
 
-export async function mintAndLoginAlgovera(chainName: string, contractType: string="ERC1155", tknId: number, price: number) {
+export async function mintAndLoginAlgovera(chainName: string, tknId: number, price: number) {
   try {
       await getAuthSig(chainName);
       const tx = await mintNftAlgovera(chainName, tknId, price)
       console.log("tx", tx)
-      await provisionAccess3(contractType, A.address, tknId);
+      await provisionAccess3("ERC1155", A.address, tknId);
       await requestJwt(chainName);
       console.log("You're logged in!");
       console.log("window.jwt", window.jwt);
