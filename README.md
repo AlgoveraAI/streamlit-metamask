@@ -116,6 +116,18 @@ else:
     st.write("Not authorized to access this application.")
 ```
 
+### Create ERC1155 tokens for Lit Protocol Access Control
+
+If you want to allow users to buy access to your Streamlit apps, you can use Algovera's smart contracts to create an instance of an ERC1155 token with custom price and metadata that your users will be able to mint inside the app. To initialize a new ERC1155 token, specify a button with the `create_token` key. You'll also need to set the following parameters:
+
+| Variable | Definition
+|-|-|
+|`price`| Price of your access control NFT (in standard units of the selected blockchain)|
+|`supply`| Supply of your access control NFT|
+| `uri`|URL to your NFT's metadata (json format)|
+
+Once you create your NFT, the button will return a `token_id` (also visible in the browser console). This will be the input of your final minting button, accessed with the `mint_and_login_algovera` key (you can delete the `create_token` button before publishing your Streamlit app).
+
 
 ## 🧱 Development
 
