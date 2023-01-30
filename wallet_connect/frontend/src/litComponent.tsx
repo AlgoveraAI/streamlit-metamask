@@ -810,7 +810,7 @@ async function provisionAccess2(contractType: string="ERC1155") {
       })
     }
 
-async function provisionAccess3(contractType: string="ERC1155", contractAddress: string, tokenId: number) {
+async function provisionAccess3(contractType: string="ERC1155", contractAddress: string, tokenId: any) {
       window.accessControlConditions = [
         {
           contractAddress: contractAddress,
@@ -916,7 +916,7 @@ async function requestJwt(chainName: string) {
 // }
 
 
-async function mintAlgovera(tknId: number, quantity: number, price: number) {
+async function mintAlgovera(tknId: any, quantity: number, price: string) {
   console.log(`minting ${quantity} tokens on ${window.chain}`);
   try {
     const chain = window.chain
@@ -937,27 +937,30 @@ async function mintAlgovera(tknId: number, quantity: number, price: number) {
 
     const contract = new Contract(tokenAddress, A.abi, web3.getSigner());
     console.log("sending to chain...");
-
+    console.log("line 940")
     const methodSignature = await contract.interface.encodeFunctionData(
       "mint",
       [tknId] 
     );
-    
+    console.log("Got here")
+    console.log("Price is ", price)
+    console.log("Price parsed in ehters is ", ethers.utils.parseUnits(price))
     const txnParams = {
       to: tokenAddress,
-      value: price, 
+      value: ethers.utils.parseUnits(price), 
       data: methodSignature,
       from: account,
     };
-    const gasEstimate = await signer.estimateGas(txnParams);
-    console.log("Gas estimate:", gasEstimate.toString());
+    console.log("Got txnParams")
+    // const gasEstimate = await signer.estimateGas(txnParams);
+    // console.log("Gas estimate:", gasEstimate.toString());
     
     // send transaction
     const txn = await signer.sendTransaction({
       to: "0x35cA20b4c393dD3C425565E0DC2059Eebe9e1422",
-      value: price, 
+      value: ethers.utils.parseUnits(price), 
       data: methodSignature,
-      gasLimit: gasEstimate,
+      gasLimit: 3e6, //gasEstimate,
     });
     console.log("Transaction:", txn);
     console.log("sent to chain.  waiting to be mined...");
@@ -975,13 +978,13 @@ async function mintAlgovera(tknId: number, quantity: number, price: number) {
     // const txReceipt = await tx.wait();
     // console.log("txReceipt: ", txReceipt);
     // const tokenId = txReceipt.events[0].args[3].toNumber();
-    // return {
-    //   txHash: txReceipt.transactionHash,
-    //   tokenId,
-    //   tokenAddress,
-    //   mintingAddress: account,
-    //   authSig,
-    // };
+    return {
+      txHash: receipt.transactionHash,
+      tknId,
+      tokenAddress,
+      mintingAddress: account,
+      authSig,
+    };
   } catch (error) {
     console.log(error);
     return { errorCode: "unknown_error" };
@@ -1006,7 +1009,7 @@ export async function initToken(price: number, supply: number, uri: string) {
   }
 }
 
-async function mintNftAlgovera(chainName: string, tknId: number, price: number) {
+async function mintNftAlgovera(chainName: string, tknId: any, price: string) {
   console.log("Minting NFT, please wait for the tx to confirm...")
 
   window.chain = chainName
@@ -1122,12 +1125,14 @@ export async function mintAndLogin(chainName: string, contractType: string="ERC1
     }
 }
 
-export async function mintAndLoginAlgovera(chainName: string, tknId: number, price: number) {
+export async function mintAndLoginAlgovera(chainName: string, tknId: any, price: string) {
   try {
       await getAuthSig(chainName);
       const tx = await mintNftAlgovera(chainName, tknId, price)
       console.log("tx", tx)
+      console.log("Provisioning Access 3")
       await provisionAccess3("ERC1155", A.address, tknId);
+      console.log("Requesting JWT")
       await requestJwt(chainName);
       console.log("You're logged in!");
       console.log("window.jwt", window.jwt);
@@ -1136,6 +1141,16 @@ export async function mintAndLoginAlgovera(chainName: string, tknId: number, pri
       console.log("Error", e);
       return false
   }
+}
+
+export async function testMintAlgovera(chainName: string, tknId: any, price: string) {
+  const tx = await mintNftAlgovera(chainName, tknId, price)
+  console.log("tx", tx)
+}
+
+export async function testMintLit(chainName: string)  {
+  const tx = await mintNft(chainName)
+  console.log("tx", tx)
 }
 
 // End Lit Protocol Integration
