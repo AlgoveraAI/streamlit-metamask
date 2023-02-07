@@ -237,13 +237,11 @@ class WalletConnect extends StreamlitComponentBase<State> {
           () => Streamlit.setComponentValue(lgn)
         )
     } else if (this.props.args["key"] === "mint_and_login") {
-      await testMintLit(this.props.args["chain_name"])
-      // UNCOMMENT THIS, ONLY FOR TESTING
-      // const lgn = await mintAndLogin(this.props.args["chain_name"], this.props.args["contract_type"])
-      // this.setState(
-      //   () => ({ loggedIn: lgn }),
-      //   () => Streamlit.setComponentValue(lgn)
-      // )
+      const lgn = await mintAndLogin(this.props.args["chain_name"], this.props.args["contract_type"])
+      this.setState(
+        () => ({ loggedIn: lgn }),
+        () => Streamlit.setComponentValue(lgn)
+      )
   } else if (this.props.args["key"] === "create_token") {
     const tknId = await initToken(this.props.args["price"], this.props.args["supply"], this.props.args["uri"])
     console.log("Token ID: ", tknId)
@@ -253,15 +251,14 @@ class WalletConnect extends StreamlitComponentBase<State> {
     )
   } else if (this.props.args["key"] === "mint_and_login_algovera") {
     console.log("Token ID is: ",  this.props.args["token_id"])
-    // const lgn = await mintAndLoginAlgovera(this.props.args["chain_name"], this.state.tokenId, this.props.args["price"])
-    const x = await testMintAlgovera(this.props.args["chain_name"], this.props.args["token_id"], this.props.args["price"])
+    // const x = await testMintAlgovera(this.props.args["chain_name"], this.props.args["token_id"], this.props.args["price"])
     // UNCOMMENT CODE BELOW, ONLY FOR TESTING
-    // const lgn = await mintAndLoginAlgovera(this.props.args["chain_name"], this.props.args["token_id"], this.props.args["price"])
-    // console.log("Logged in: ", lgn)
-    // this.setState(
-    //   () => ({ loggedIn: lgn }),
-    //   () => Streamlit.setComponentValue(lgn)
-    // )
+    const lgn = await mintAndLoginAlgovera(this.props.args["chain_name"], this.props.args["token_id"], this.props.args["price"])
+    console.log("Logged in: ", lgn)
+    this.setState(
+      () => ({ loggedIn: lgn }),
+      () => Streamlit.setComponentValue(lgn)
+    )
   }
     // Increment state.numClicks, and pass the new value back to
     // Streamlit via `Streamlit.setComponentValue`.
