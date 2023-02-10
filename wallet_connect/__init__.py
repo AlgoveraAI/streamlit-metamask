@@ -37,26 +37,10 @@ st.write(f"Wallet {wallet_button} connected.")
 button = wallet_connect(message="Create Token", label="create_token", key="create_token", price="0.01", supply=1000, uri="https://gateway.pinata.cloud/ipfs/QmZrFfBGmUmXYUVeTrKdKC1aFeBBEEXQPGhsJtX45GwCC5")
 st.write(f"TokenId is {button}")
 
-button2 = wallet_connect(message="Login", label="mint_and_login_algovera", key="mint_and_login_algovera", price="0.01", token_id="13", chain_name="mumbai")
-st.write(f"Logged In {button2}")
-if button2 == True:
-    st.write(f"Logged In Indeed!")
-# # second_button = wallet_connect(label="send", key="send", message="Send Transaction", contract_address="0xCfDdA22C9837aE76E0faA845354f33C62E03653a", amount="10", to_address="") # need to fill in to_address
-# message_to_encrypt = st.text_input("Message to encrypt")
-# encrypt_button = wallet_connect(label="encrypt", key="encrypt", message="Encrypt", message_to_encrypt=message_to_encrypt)
-# st.write(encrypt_button)
+mint_button = wallet_connect(message="Login Algovera", label="mint_and_login_algovera", key="mint_and_login_algovera", price="0.01", token_id="26", chain_name="mumbai")
 
-# # st.session_state["encrypted_string"] = encrypt_button["encryptedString"]
-# # st.session_state["encrypted_symmetric_key"] = encrypt_button["encryptedSymmetricKey"]
-# encrypted_string = st.text_input("Enter string to decrypt")
-# encrypted_symmetric_key = st.text_input("Enter symmetric key")
-
-# decrypt_button = wallet_connect(label="decrypt", key="decrypt", message="Decrypt", encrypted_string=encrypted_string, encrypted_symmetric_key=encrypted_symmetric_key)
-# st.write(decrypt_button)
-
-# login_button = wallet_connect(label="login", key="login", message="Login", auth_token_contract_address="0x68085453B798adf9C09AD8861e0F0da96B908d81", chain_name="polygon", contract_type="ERC1155", num_tokens="0")
-# mint_button = wallet_connect(label="mint", key="mint_and_login", message="Mint and Login", chain_name="mumbai")
-# if login_button == True:
-#     st.write("Logged in!")
-# else:
-#     st.write("Not authorized to access this application.")
+if mint_button == True:
+    st.write("Logged in!")
+    st.image("dog.jpeg")
+else:
+    st.write("Not authorized to access this application.")
