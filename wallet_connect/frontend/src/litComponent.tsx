@@ -24,38 +24,7 @@ const LitJsSdk = require("lit-js-sdk");
 
 // Lit Protocol Integration
   
-  // Helper functions
-  
-  async function getLitClient() {
-    console.log("Lit!")
-    const client = new LitJsSdk.LitNodeClient();
-    await client.connect();
-    window.litNodeClient = client;
-    console.log("Lit client connected", client);
-    console.log("Window.litNodeClient", window.litNodeClient);
-  
-    const chain = "ethereum";
-    console.log("Chain", chain);
-  
-    const accessControlConditions = [
-      {
-        contractAddress: "",
-        standardContractType: "",
-        chain: chain,
-        method: "eth_getBalance",
-        parameters: [":userAddress", "latest"],
-        returnValueTest: {
-          comparator: ">=",
-          value: "1000000000000", // 0.000001 ETH
-        },
-      },
-    ];
-  
-    const authSig = await LitJsSdk.checkAndSignAuthMessage({ chain: chain });
-    console.log("AuthSig", authSig)
-  }
-  
-  
+  // Helper functions  
   
   async function connectWeb3({ chainId = 1 } = {}) {
     const rpcUrls: any = {};
