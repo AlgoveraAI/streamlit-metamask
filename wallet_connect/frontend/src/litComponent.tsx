@@ -474,8 +474,8 @@ export async function mintAndLogin(chainName: string, contractType: string="ERC1
 
 export async function mintAndLoginAlgovera(chainName: string, tknId: any, price: string) {
   try {
-      await getAuthSig(chainName);
-      const tx = await mintNftAlgovera(chainName, tknId, price)
+    const tx = await mintNftAlgovera(chainName, tknId, price)
+    await getAuthSig(chainName);
       console.log("tx", tx)
       console.log("Provisioning Access 3")
       await provisionAccess3("ERC1155", A.address, tknId, chainName);
@@ -490,21 +490,7 @@ export async function mintAndLoginAlgovera(chainName: string, tknId: any, price:
   }
 }
 
-export async function loginAlgovera(chainName: string, tknId: any) {
-  try {
-      await getAuthSig(chainName);
-      console.log("Provisioning Access 3")
-      await provisionAccess3("ERC1155", A.address, tknId, chainName);
-      console.log("Requesting JWT")
-      await requestJwt(chainName);
-      console.log("You're logged in!");
-      console.log("window.jwt", window.jwt);
-      return true
-  } catch (e) {
-      console.log("Error", e);
-      return false
-  }
-}
+
 
 
 // End Lit Protocol Integration
