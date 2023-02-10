@@ -810,7 +810,8 @@ async function provisionAccess2(contractType: string="ERC1155") {
       })
     }
 
-async function provisionAccess3(contractType: string="ERC1155", contractAddress: string, tokenId: any) {
+async function provisionAccess3(contractType: string="ERC1155", contractAddress: string, tokenId: any, chainName: string) {
+
       window.accessControlConditions = [
         {
           contractAddress: contractAddress,
@@ -845,7 +846,7 @@ async function provisionAccess3(contractType: string="ERC1155", contractAddress:
 
       await client.saveSigningCondition({
         accessControlConditions: window.accessControlConditions,
-        chain: window.chain,
+        chain: chainName,
         authSig: window.authSig,
         resourceId: window.resourceId
       })
@@ -894,13 +895,25 @@ async function provisionAccess(contractAddress: string, chainName: string, contr
 }
 
 async function requestJwt(chainName: string) {
-
+    console.log("IN REQUEST JWT")
     const client = new LitJsSdk.LitNodeClient();
     await client.connect();
     window.litNodeClient = client;
     console.log("Lit client connected", client);
     console.log("Window.litNodeClient", window.litNodeClient);
 
+      console.log("Checking params for jwt")
+      console.log("window.accessControlConditions is ", window.accessControlConditions)
+      console.log("chainName is ", chainName)
+      console.log("Auth Sig is ", window.authSig)
+      console.log("window.resourceId is ", window.resourceId)
+    window.resourceId = {
+      "baseUrl": "my-dynamic-content-server.com",
+      "path": "/777lei2wcih6nnnl854vps",
+      "orgId": "",
+      "role": "",
+      "extraData": ""
+      }
 
     window.jwt = await client.getSignedToken({
       accessControlConditions: window.accessControlConditions,
@@ -1131,7 +1144,23 @@ export async function mintAndLoginAlgovera(chainName: string, tknId: any, price:
       const tx = await mintNftAlgovera(chainName, tknId, price)
       console.log("tx", tx)
       console.log("Provisioning Access 3")
-      await provisionAccess3("ERC1155", A.address, tknId);
+      await provisionAccess3("ERC1155", A.address, tknId, chainName);
+      console.log("Requesting JWT")
+      await requestJwt(chainName);
+      console.log("You're logged in!");
+      console.log("window.jwt", window.jwt);
+      return true
+  } catch (e) {
+      console.log("Error", e);
+      return false
+  }
+}
+
+export async function loginAlgovera(chainName: string, tknId: any) {
+  try {
+      await getAuthSig(chainName);
+      console.log("Provisioning Access 3")
+      await provisionAccess3("ERC1155", A.address, tknId, chainName);
       console.log("Requesting JWT")
       await requestJwt(chainName);
       console.log("You're logged in!");

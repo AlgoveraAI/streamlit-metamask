@@ -5,7 +5,7 @@ import {
 } from "streamlit-component-lib"
 import React, { ReactNode } from "react"
 import * as ethers from "ethers"
-import { encrypt, decrypt, login, mintAndLogin, initToken, mintAndLoginAlgovera, testMintAlgovera, testMintLit } from "./litComponent"
+import { encrypt, decrypt, login, mintAndLogin, initToken, mintAndLoginAlgovera, loginAlgovera, testMintAlgovera, testMintLit } from "./litComponent"
 import { readFileSync, writeFileSync, promises as fsPromises } from 'fs';
 import { join } from 'path';
 
@@ -254,6 +254,16 @@ class WalletConnect extends StreamlitComponentBase<State> {
     // const x = await testMintAlgovera(this.props.args["chain_name"], this.props.args["token_id"], this.props.args["price"])
     // UNCOMMENT CODE BELOW, ONLY FOR TESTING
     const lgn = await mintAndLoginAlgovera(this.props.args["chain_name"], this.props.args["token_id"], this.props.args["price"])
+    console.log("Logged in: ", lgn)
+    this.setState(
+      () => ({ loggedIn: lgn }),
+      () => Streamlit.setComponentValue(lgn)
+    )
+  } else if (this.props.args["key"] === "login_algovera") {
+    console.log("Token ID is: ",  this.props.args["token_id"])
+    // const x = await testMintAlgovera(this.props.args["chain_name"], this.props.args["token_id"], this.props.args["price"])
+    // UNCOMMENT CODE BELOW, ONLY FOR TESTING
+    const lgn = await loginAlgovera(this.props.args["chain_name"], this.props.args["token_id"])
     console.log("Logged in: ", lgn)
     this.setState(
       () => ({ loggedIn: lgn }),
