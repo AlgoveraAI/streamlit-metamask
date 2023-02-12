@@ -120,13 +120,32 @@ else:
 
 If you want to allow users to buy access to your Streamlit apps, you can use Algovera's smart contracts to create an instance of an ERC1155 token with custom price and metadata that your users will be able to mint inside the app. To initialize a new ERC1155 token, specify a button with the `create_token` key. You'll also need to set the following parameters:
 
-| Variable | Definition
+| Variable | Definition |
 |-|-|
 |`price`| Price of your access control NFT (in standard units of the selected blockchain)|
 |`supply`| Supply of your access control NFT|
-| `uri`|URL to your NFT's metadata (json format)|
+| `uri`| URL to your NFT's metadata (json format)|
 
 Once you create your NFT, the button will return a `token_id` (also visible in the browser console). This will be the input of your final minting button, accessed with the `mint_and_login_algovera` key (you can delete the `create_token` button before publishing your Streamlit app).
+
+Example token initialization
+```python
+button = wallet_connect(message="Create Token", label="create_token", key="create_token", price="0.01", supply=1000, uri="https://gateway.pinata.cloud/ipfs/QmZrFfBGmUmXYUVeTrKdKC1aFeBBEEXQPGhsJtX45GwCC5")
+```
+
+Say the token ID that gets returned from this function call is 28. Then in your final version of the Streamlit app, you would use:
+
+Example token minting
+```python
+mint_button = wallet_connect(message="Login Algovera", label="mint_and_login_algovera", key="mint_and_login_algovera", price="0.01", token_id="28", chain_name="mumbai")
+
+if mint_button == True:
+    st.write("Logged in!")
+else:
+    st.write("Not authorized to access this application.")
+```
+
+The chains currently supported for initializing and minting your own access control NFT are `ethereum`, `polygon`, and `mumbai` (more will be added based on user requests/feedback).
 
 
 ## 🧱 Development
