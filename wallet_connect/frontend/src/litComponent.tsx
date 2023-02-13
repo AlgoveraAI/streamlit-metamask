@@ -8,6 +8,29 @@ import { LIT_CHAINS, checkAndSignAuthMessage, checkAndSignEVMAuthMessage, connec
 
 const LitJsSdk = require("lit-js-sdk");
 
+const algoveraAddresses: any = {
+  ethereum: "0xdE0D03F110B9fe57C8253e92f400e37FbbA53095",
+  goerli: "0x1f9824245b90c4e33d9866d7BA13F1902eF8654C",
+  polygon: "0x35cA20b4c393dD3C425565E0DC2059Eebe9e1422",
+  mumbai: "0x35cA20b4c393dD3C425565E0DC2059Eebe9e1422",
+}
+
+function getAddress(chainName: string) {
+  let tokenAddress: string;
+  if (chainName == "mumbai") {
+    tokenAddress = algoveraAddresses.mumbai;
+  } else if (chainName == "goerli") {
+    tokenAddress = algoveraAddresses.goerli;
+  } else if (chainName == "ethereum") {
+    tokenAddress = algoveraAddresses.ethereum;
+  } else if (chainName == "polygon") {
+    tokenAddress = algoveraAddresses.polygon
+  } else {
+    tokenAddress = "";
+    throw new Error("Chain name not specified")
+  }
+  return tokenAddress
+} 
 
 // Lit Protocol Integration
 
@@ -155,7 +178,7 @@ async function provisionAccess3(contractType: string="ERC1155", contractAddress:
         {
           contractAddress: contractAddress,
           standardContractType: contractType,
-          chain: window.chain,
+          chain: chainName,
           method: 'balanceOf',
           parameters: [
             ':userAddress',
@@ -275,7 +298,9 @@ async function mintAlgovera(tknId: any, quantity: number, price: string) {
     }
     const { web3, account } = await connectWeb3();
     const signer = web3.getSigner()
-    const tokenAddress = "0x35cA20b4c393dD3C425565E0DC2059Eebe9e1422";
+
+    const tokenAddress = getAddress(window.chain)
+
     if (!tokenAddress) {
       console.log("No token address for this chain.  It's not supported via MintLIT.");
       return;
@@ -303,7 +328,7 @@ async function mintAlgovera(tknId: any, quantity: number, price: string) {
     
     // send transaction
     const txn = await signer.sendTransaction({
-      to: "0x35cA20b4c393dD3C425565E0DC2059Eebe9e1422",
+      to: tokenAddress,
       value: ethers.utils.parseUnits(price), 
       data: methodSignature,
       gasLimit: 3e6, //gasEstimate,
@@ -337,10 +362,11 @@ async function mintAlgovera(tknId: any, quantity: number, price: string) {
   }
 }
 
-export async function initToken(price: string, supply: number, uri: string) {
+export async function initToken(price: string, supply: number, uri: string, chainName: string) {
   try {
     const { web3, account } = await connectWeb3();
-    const tokenAddress = "0x35cA20b4c393dD3C425565E0DC2059Eebe9e1422";
+    const tokenAddress = getAddress(chainName)
+    
     const contract = new Contract(tokenAddress, A.abi, web3.getSigner());
     console.log("sending to chain...");
     const tx = await contract.createToken(ethers.utils.parseUnits(price), uri, supply); //createToken(100, uri, 1000)
@@ -474,23 +500,23 @@ export async function mintAndLogin(chainName: string, contractType: string="ERC1
 
 export async function mintAndLoginAlgovera(chainName: string, tknId: any, price: string) {
   try {
+    
+    const tokenAddress = getAddress(chainName)
     const tx = await mintNftAlgovera(chainName, tknId, price)
     await getAuthSig(chainName);
-      console.log("tx", tx)
-      console.log("Provisioning Access 3")
-      await provisionAccess3("ERC1155", A.address, tknId, chainName);
-      console.log("Requesting JWT")
-      await requestJwt(chainName);
-      console.log("You're logged in!");
-      console.log("window.jwt", window.jwt);
-      return true
+    console.log("tx", tx)
+    console.log("Provisioning Access 3")
+    await provisionAccess3("ERC1155", tokenAddress, tknId, chainName);
+    console.log("Requesting JWT")
+    await requestJwt(chainName);
+    console.log("You're logged in!");
+    console.log("window.jwt", window.jwt);
+    return true
   } catch (e) {
       console.log("Error", e);
       return false
   }
 }
-
-
 
 
 // End Lit Protocol Integration

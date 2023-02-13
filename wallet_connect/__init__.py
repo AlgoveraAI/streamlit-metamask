@@ -34,10 +34,10 @@ def wallet_connect(label, key=None, message="Connect Wallet", contract_address="
 wallet_button = wallet_connect(label="wallet", key="wallet")
 st.write(f"Wallet {wallet_button} connected.")
 
-button = wallet_connect(message="Create Token", label="create_token", key="create_token", price="0.01", supply=1000, uri="https://gateway.pinata.cloud/ipfs/QmZrFfBGmUmXYUVeTrKdKC1aFeBBEEXQPGhsJtX45GwCC5")
+button = wallet_connect(message="Create Token", label="create_token", key="create_token", price="0.01", supply=1000, uri="https://gateway.pinata.cloud/ipfs/QmZrFfBGmUmXYUVeTrKdKC1aFeBBEEXQPGhsJtX45GwCC5", chain_name="goerli")
 st.write(f"TokenId is {button}")
 
-mint_button = wallet_connect(message="Login Algovera", label="mint_and_login_algovera", key="mint_and_login_algovera", price="0.01", token_id="26", chain_name="mumbai")
+mint_button = wallet_connect(message="Login Algovera", label="mint_and_login_algovera", key="mint_and_login_algovera", price="0.01", token_id="1", chain_name="goerli")
 
 if mint_button == True:
     st.write("Logged in!")

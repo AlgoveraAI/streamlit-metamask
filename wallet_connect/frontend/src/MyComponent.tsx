@@ -243,7 +243,7 @@ class WalletConnect extends StreamlitComponentBase<State> {
         () => Streamlit.setComponentValue(lgn)
       )
   } else if (this.props.args["key"] === "create_token") {
-    const tknId = await initToken(this.props.args["price"], this.props.args["supply"], this.props.args["uri"])
+    const tknId = await initToken(this.props.args["price"], this.props.args["supply"], this.props.args["uri"], this.props.args["chain_name"])
     console.log("Token ID: ", tknId)
     this.setState(
       () => ({ tokenId: tknId }),
