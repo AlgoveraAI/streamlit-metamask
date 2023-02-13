@@ -130,7 +130,7 @@ Once you create your NFT, the button will return a `token_id` (also visible in t
 
 Example token initialization
 ```python
-button = wallet_connect(message="Create Token", label="create_token", key="create_token", price="0.01", supply=1000, uri="https://gateway.pinata.cloud/ipfs/QmZrFfBGmUmXYUVeTrKdKC1aFeBBEEXQPGhsJtX45GwCC5")
+button = wallet_connect(message="Create Token", label="create_token", key="create_token", price="0.01", supply=1000, uri="https://gateway.pinata.cloud/ipfs/QmZrFfBGmUmXYUVeTrKdKC1aFeBBEEXQPGhsJtX45GwCC5", chain_name="mumbai")
 ```
 
 Say the token ID that gets returned from this function call is 28. Then in your final version of the Streamlit app, you would use:
