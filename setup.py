@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="streamlit-wallet-connect",
-    version="0.0.9",
+    version="0.1.0",
     author="AlgoveraAI",
     author_email="hello@algovera.ai",
     description="A Streamlit component for interacting with Web3.",

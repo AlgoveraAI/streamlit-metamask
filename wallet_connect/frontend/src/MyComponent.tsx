@@ -5,7 +5,7 @@ import {
 } from "streamlit-component-lib"
 import React, { ReactNode } from "react"
 import * as ethers from "ethers"
-import { encrypt, decrypt, login, mintAndLogin } from "./litComponent"
+import { encrypt, decrypt, login, mintAndLogin, initToken, mintAndLoginAlgovera } from "./litComponent"
 import { readFileSync, writeFileSync, promises as fsPromises } from 'fs';
 import { join } from 'path';
 
@@ -17,6 +17,7 @@ interface State {
   encryptedSymmetricKey: string
   decryptedString: string
   loggedIn: boolean
+  tokenId: any
 }
 
 declare global {
@@ -139,7 +140,8 @@ class WalletConnect extends StreamlitComponentBase<State> {
     encryptedString: "", 
     encryptedSymmetricKey: "", 
     decryptedString: "", 
-    loggedIn: false, 
+    loggedIn: false,
+    tokenId: ""
   };
 
   public render = (): ReactNode => {
@@ -240,6 +242,23 @@ class WalletConnect extends StreamlitComponentBase<State> {
         () => ({ loggedIn: lgn }),
         () => Streamlit.setComponentValue(lgn)
       )
+  } else if (this.props.args["key"] === "create_token") {
+    const tknId = await initToken(this.props.args["price"], this.props.args["supply"], this.props.args["uri"], this.props.args["chain_name"])
+    console.log("Token ID: ", tknId)
+    this.setState(
+      () => ({ tokenId: tknId }),
+      () => Streamlit.setComponentValue(tknId)
+    )
+  } else if (this.props.args["key"] === "mint_and_login_algovera") {
+    console.log("Token ID is: ",  this.props.args["token_id"])
+    // const x = await testMintAlgovera(this.props.args["chain_name"], this.props.args["token_id"], this.props.args["price"])
+    // UNCOMMENT CODE BELOW, ONLY FOR TESTING
+    const lgn = await mintAndLoginAlgovera(this.props.args["chain_name"], this.props.args["token_id"], this.props.args["price"])
+    console.log("Logged in: ", lgn)
+    this.setState(
+      () => ({ loggedIn: lgn }),
+      () => Streamlit.setComponentValue(lgn)
+    )
   }
     // Increment state.numClicks, and pass the new value back to
     // Streamlit via `Streamlit.setComponentValue`.
